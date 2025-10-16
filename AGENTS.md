@@ -4,13 +4,13 @@ This file provides guidance to Qoder (qoder.com) when working with code in this 
 
 ## Project Overview
 
-This is a Bun-based TypeScript project. Bun is a fast all-in-one JavaScript runtime that serves as an alternative to Node.js.
+This is a Bun-based TypeScript project for creating an npm package for Wiro AI. Bun is a fast all-in-one JavaScript runtime that serves as an alternative to Node.js.
 
 ## Key Commands
 
 ### Development
 - Install dependencies: `bun install`
-- Run the project: `bun run index.ts`
+- Run the project: `bun run src/index.ts`
 
 ### Testing
 - Run tests: `bun test`
@@ -29,6 +29,9 @@ This is a Bun-based TypeScript project. Bun is a fast all-in-one JavaScript runt
 ```
 src/
   index.ts     # Entry point
+docs/
+  wiro-ai-research/
+    wiro-ai-perplexity-research.md  # Comprehensive guide for Wiro AI SDK implementation
 ```
 
 ### Key Configuration Files
@@ -45,7 +48,7 @@ src/
 ## Development Workflow
 
 1. Make changes to files in the `src/` directory
-2. Run `bun run index.ts` to test changes
+2. Run `bun run src/index.ts` to test changes
 3. Run `bun test` to execute tests (if any)
 4. Run `bun run tsc --noEmit` to check for type errors
 
@@ -57,3 +60,19 @@ Bun provides built-in functionality for:
 - Built-in test runner
 - Bundle creation with `bun build`
 - Web APIs like fetch, WebSocket, etc.
+
+## Implementation Plan
+
+Based on the documentation in `docs/wiro-ai-research/wiro-ai-perplexity-research.md`, this project will implement:
+1. A TypeScript SDK for the Wiro AI API
+2. HMAC-SHA256 authentication
+3. Core API endpoints for running models and managing tasks
+4. WebSocket support for real-time updates
+5. Proper type definitions for all API interactions
+
+The implementation will follow the structure outlined in the research document with separate modules for:
+- Client implementation
+- Authentication utilities
+- WebSocket handling
+- Type definitions
+- Utility functions
