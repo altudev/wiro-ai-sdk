@@ -109,6 +109,8 @@ generateHeadshot('https://example.com/casual-photo.jpg')
   .catch(error => console.error('Error:', error));
 ```
 
+**Note:** When using public image URLs, be mindful of image privacy. Avoid sharing sensitive or personal photos via publicly accessible URLs. For sensitive content, consider uploading local files directly or using authenticated/temporary URLs.
+
 ### Working with Local Files
 
 Upload local images instead of URLs:
@@ -122,30 +124,38 @@ const client = new WiroClient({
   apiSecret: process.env.WIRO_API_SECRET!
 });
 
-// Option 1: Using file path (Bun runtime)
-const files: WiroFileParam[] = [{
-  name: 'inputImage',
-  file: './my-photo.jpg'
-}];
+try {
+  // Option 1: Using file path (Bun runtime)
+  const files: WiroFileParam[] = [{
+    name: 'inputImage',
+    file: './my-photo.jpg'
+  }];
 
-const result = await client.run('wiro', 'professional-headshot', {
-  background: 'neutral',
-  outputFormat: 'jpeg'
-}, files);
+  const result = await client.run('wiro', 'professional-headshot', {
+    background: 'neutral',
+    outputFormat: 'jpeg'
+  }, files);
 
-// Option 2: Using Blob (Node.js or browser)
-const imageBuffer = readFileSync('./my-photo.jpg');
-const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+  console.log('Task submitted:', result.taskid);
 
-const filesWithBlob: WiroFileParam[] = [{
-  name: 'inputImage',
-  file: blob
-}];
+  // Option 2: Using Blob (Node.js or browser)
+  const imageBuffer = readFileSync('./my-photo.jpg');
+  const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
 
-const result2 = await client.run('wiro', 'professional-headshot', {
-  background: 'neutral',
-  outputFormat: 'jpeg'
-}, filesWithBlob);
+  const filesWithBlob: WiroFileParam[] = [{
+    name: 'inputImage',
+    file: blob
+  }];
+
+  const result2 = await client.run('wiro', 'professional-headshot', {
+    background: 'neutral',
+    outputFormat: 'jpeg'
+  }, filesWithBlob);
+
+  console.log('Task submitted:', result2.taskid);
+} catch (error) {
+  console.error('Error uploading file:', error instanceof Error ? error.message : error);
+}
 ```
 
 ### Task Management
@@ -233,6 +243,49 @@ bun run build
 # Run tests
 bun test
 ```
+
+## Troubleshooting
+
+### Authentication Errors
+
+**Problem:** "Wiro API request failed: 401 Unauthorized"
+
+**Solution:**
+- Verify your API key and secret are correct
+- Check that credentials are properly loaded from environment variables
+- Ensure no extra spaces or quotes around credential values
+
+### Task Never Completes
+
+**Problem:** Task stays in `task_queue` or `task_start` indefinitely
+
+**Solution:**
+- Check the [Wiro Dashboard](https://dashboard.wiro.ai) for task status
+- Verify input parameters match model requirements
+- Ensure input image URLs are publicly accessible
+- Check task `debugerror` field: `task.debugerror`
+
+### File Upload Errors
+
+**Problem:** "Failed to read file" or file upload failures
+
+**Solution:**
+- Verify file path is correct and file exists
+- Ensure file is a supported image format (JPEG, PNG, etc.)
+- For Bun file paths, make sure you're using the Bun runtime
+- For Node.js, use Blob/Buffer approach instead of file paths
+
+### Task Cancelled
+
+**Problem:** Task status shows `task_cancel`
+
+**Solution:**
+- Check `task.debugerror` for cancellation reason
+- Verify input image meets model requirements (size, format, content)
+- Review safety tolerance settings if content was flagged
+- Ensure image URL is accessible and not behind authentication
+
+For more troubleshooting help, see the [examples README](./examples/README.md#troubleshooting).
 
 ## License
 
