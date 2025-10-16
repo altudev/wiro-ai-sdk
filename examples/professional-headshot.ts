@@ -158,7 +158,7 @@ async function main() {
   console.log('\nStep 2: Configuring model parameters...');
 
   // Example input image URL (replace with your own image)
-  const inputImageUrl = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800';
+  const inputImageUrl = 'https://i.hizliresim.com/qnm71if.jpg';
 
   // Validate the input URL
   if (!isValidUrl(inputImageUrl)) {
