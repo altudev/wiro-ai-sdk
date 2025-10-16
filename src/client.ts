@@ -54,14 +54,19 @@ export class WiroClient {
 
   constructor(options: WiroClientOptions) {
     const { apiKey, apiSecret, baseUrl = 'https://api.wiro.ai/v1' } = options;
-    
+
     if (!apiKey) {
       throw new Error('WiroClient requires an apiKey');
     }
     if (!apiSecret) {
       throw new Error('WiroClient requires an apiSecret');
     }
-    
+
+    // Validate baseUrl
+    if (baseUrl && !baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      throw new Error('Invalid baseUrl: must start with http:// or https://');
+    }
+
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
@@ -129,21 +134,26 @@ export class WiroClient {
       for (const fileParam of files) {
         let fileData: Blob | File;
         let filename = fileParam.filename;
-        
+
         // If the file is a string, treat it as a path and read using Bun.file()
         if (typeof fileParam.file === 'string') {
-          const bunFile = Bun.file(fileParam.file);
-          fileData = bunFile;
-          
-          // Extract filename from path if not provided
-          if (!filename) {
-            const pathParts = fileParam.file.split(/[/\\]/);
-            filename = pathParts[pathParts.length - 1] || fileParam.name;
+          try {
+            const bunFile = Bun.file(fileParam.file);
+            fileData = bunFile;
+
+            // Extract filename from path if not provided
+            if (!filename) {
+              const pathParts = fileParam.file.split(/[/\\]/);
+              filename = pathParts[pathParts.length - 1] || fileParam.name;
+            }
+          } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(`Failed to read file at "${fileParam.file}": ${errorMsg}`);
           }
         } else {
           // File is already a Blob or File
           fileData = fileParam.file;
-          
+
           // Use the File's name if available, otherwise generate one
           if (!filename) {
             if ('name' in fileData && fileData.name) {
@@ -153,7 +163,7 @@ export class WiroClient {
             }
           }
         }
-        
+
         form.append(fileParam.name, fileData, filename);
       }
       

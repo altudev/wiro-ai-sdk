@@ -11,15 +11,16 @@ export interface WiroAuthHeaders {
 
 /**
  * Generate authentication headers for Wiro AI API requests.
- * 
+ *
  * The Wiro AI API uses HMAC-SHA256 authentication with the following formula:
  * - nonce: Unix timestamp (seconds since epoch)
  * - signature: HMAC-SHA256(apiSecret + nonce, apiKey)
- * 
- * @param apiKey - Your Wiro project API key
- * @param apiSecret - Your Wiro project API secret
+ *
+ * @param apiKey - Your Wiro project API key (required, minimum 8 characters)
+ * @param apiSecret - Your Wiro project API secret (required, minimum 8 characters)
  * @returns Authentication headers object
- * 
+ * @throws Error if apiKey or apiSecret is empty or too short
+ *
  * @example
  * ```ts
  * const headers = generateAuthHeaders('my-api-key', 'my-api-secret');
@@ -32,6 +33,14 @@ export interface WiroAuthHeaders {
  * ```
  */
 export function generateAuthHeaders(apiKey: string, apiSecret: string): WiroAuthHeaders {
+  // Validate credentials
+  if (!apiKey || apiKey.length < 8) {
+    throw new Error('Invalid apiKey: must be at least 8 characters long');
+  }
+  if (!apiSecret || apiSecret.length < 8) {
+    throw new Error('Invalid apiSecret: must be at least 8 characters long');
+  }
+
   // Generate nonce as Unix timestamp in seconds
   const nonce = Math.floor(Date.now() / 1000).toString();
   

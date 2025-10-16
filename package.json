@@ -36,16 +36,16 @@
     "ai-models",
     "bun"
   ],
-  "author": "",
+  "author": "Alper Tunga",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/wiro-ai-sdk.git"
+    "url": "https://github.com/altudev/wiro-ai-sdk.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/wiro-ai-sdk/issues"
+    "url": "https://github.com/altudev/wiro-ai-sdk/issues"
   },
-  "homepage": "https://github.com/yourusername/wiro-ai-sdk#readme",
+  "homepage": "https://github.com/altudev/wiro-ai-sdk#readme",
   "devDependencies": {
     "@types/bun": "latest"
   },
