@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "ask": [
+      "Read(!/home/pengwin-altudev/wiro-ai-sdk/**)",
+      "Edit(!/home/pengwin-altudev/wiro-ai-sdk/**)"
+    ],
+    "allow": [
+      "Read(/home/pengwin-altudev/wiro-ai-sdk/**)",
+      "Edit(/home/pengwin-altudev/wiro-ai-sdk/**)"
+    ]
+  },
+  "memoryImport": {},
+  "monitoring": {}
+}
