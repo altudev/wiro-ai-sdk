@@ -27,13 +27,15 @@ bun test src/client.test.ts  # Run specific test file
 
 ## Project Overview
 
-**Wiro AI SDK** is a production-ready TypeScript SDK (npm package) for the Wiro AI API. The SDK provides a client for running AI models, querying task status, and managing task lifecycles.
+**Wiro AI SDK** is the official TypeScript/JavaScript client library for the [Wiro AI](https://wiro.ai) platform. It provides a type-safe, zero-dependency interface for running AI models, managing tasks, and handling image processing operations. Built with modern standards and strict TypeScript support, this SDK simplifies integration with Wiro AI's powerful model ecosystem.
 
-- **Runtime:** Bun v1.2.22+ (JavaScript runtime)
+- **Runtime:** Bun v1.2.22+ (JavaScript runtime, Node.js compatible)
 - **Language:** TypeScript 5+ with strict type checking
 - **Module System:** ESM (ES Modules)
 - **Package Manager:** Bun (with bun.lock for dependencies)
 - **Authentication:** HMAC-SHA256 based on API key/secret
+- **Package Name:** `wiro-ai-sdk` (published to npm)
+- **Zero Dependencies:** Uses only built-in fetch, crypto, and Blob APIs
 
 ## Architecture Overview
 
@@ -106,16 +108,18 @@ Tasks progress through these statuses (see `src/types/index.ts:TaskStatus`):
 
 ## Key Files & Responsibilities
 
-| File | Size | Purpose |
-|------|------|---------|
-| `src/client.ts` | 310 lines | Main `WiroClient` implementation with all API methods |
-| `src/auth.ts` | ~50 lines | `generateAuthHeaders()` for HMAC-SHA256 authentication |
-| `src/types/index.ts` | 193 lines | All TypeScript interfaces and types (requests, responses, task statuses) |
-| `src/index.ts` | <20 lines | Public exports for npm package |
-| `package.json` | 55 lines | NPM metadata, build scripts, dependencies |
-| `tsconfig.json` | 37 lines | TypeScript strict mode configuration |
-| `docs/wiro-ai-research/wiro-ai-perplexity-research.md` | 907 lines | Comprehensive implementation guide and best practices |
-| `docs/wiro-ai/professional-headshot/llms.txt` | 428 lines | Wiro AI API endpoint specs and curl examples |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `src/client.ts` | 310 | Main `WiroClient` implementation with all API methods |
+| `src/auth.ts` | ~50 | `generateAuthHeaders()` for HMAC-SHA256 authentication |
+| `src/types/index.ts` | 193 | All TypeScript interfaces and types (requests, responses, task statuses) |
+| `src/index.ts` | <20 | Public exports for npm package |
+| `examples/professional-headshot.ts` | 194 | Complete usage example with task polling and error handling |
+| `examples/README.md` | 150+ | Examples documentation with setup instructions |
+| `package.json` | 55 | NPM metadata, build scripts, dependencies |
+| `tsconfig.json` | 37 | TypeScript strict mode configuration |
+| `docs/wiro-ai-research/wiro-ai-perplexity-research.md` | 907 | Comprehensive implementation guide and best practices |
+| `docs/wiro-ai/professional-headshot/llms.txt` | 428 | Wiro AI API endpoint specs and curl examples |
 
 ## Build Output
 
@@ -187,8 +191,53 @@ The `prepublishOnly` script ensures `dist/` is rebuilt before publishing.
 4. **Flexible Task Queries:** Both `taskid` and `tasktoken` can be used to query/manage tasks (see `TaskDetailRequest` type).
 5. **Generic Responses:** `run()` and `getTaskDetail()` are generic to support typed model outputs.
 
+## Usage Examples
+
+The SDK is designed to be used as an installed npm package. After installation:
+
+```bash
+npm install wiro-ai-sdk
+```
+
+Users can import and use it in their projects:
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+const client = new WiroClient({
+  apiKey: process.env.WIRO_API_KEY!,
+  apiSecret: process.env.WIRO_API_SECRET!
+});
+
+// Generate professional headshot
+const result = await client.run('wiro', 'professional-headshot', {
+  inputImageUrl: 'https://example.com/photo.jpg',
+  background: 'neutral',
+  outputFormat: 'jpeg'
+});
+
+// Poll for completion
+let task;
+do {
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  const detailResponse = await client.getTaskDetail({ taskid: result.taskid });
+  task = detailResponse.tasklist[0];
+} while (task.status !== 'task_postprocess_end' && task.status !== 'task_cancel');
+
+console.log('Result:', task.result);
+```
+
+See `README.md` for comprehensive usage examples including:
+- Professional headshot generation with task polling
+- Local file upload handling (file paths and Blobs)
+- Task management (kill, cancel, query)
+
+The `examples/` directory contains full working examples for developers who cloned the repository.
+
 ## Related Documentation
 
+- `README.md` - User-facing documentation with installation and usage examples
 - `AGENTS.md` - Guidance for Qoder agents
+- `examples/README.md` - Detailed examples documentation
 - `docs/wiro-ai-research/wiro-ai-perplexity-research.md` - Deep dive on implementation decisions and best practices
 - `docs/wiro-ai/professional-headshot/llms.txt` - Official API documentation with examples
