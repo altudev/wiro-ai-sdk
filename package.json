@@ -1,13 +1,55 @@
 {
   "name": "wiro-ai-sdk",
-  "module": "src/index.ts",
+  "version": "0.1.0",
+  "description": "Production-ready TypeScript SDK for the Wiro AI API",
   "type": "module",
-  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun run build:bundle && bun run build:types",
+    "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm --sourcemap=external",
+    "build:types": "bun run tsc --emitDeclarationOnly --outDir dist",
+    "typecheck": "bun run tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "wiro",
+    "wiro-ai",
+    "ai",
+    "api",
+    "sdk",
+    "typescript",
+    "image-generation",
+    "ai-models",
+    "bun"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/wiro-ai-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/wiro-ai-sdk/issues"
+  },
+  "homepage": "https://github.com/yourusername/wiro-ai-sdk#readme",
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   }
-
 }
