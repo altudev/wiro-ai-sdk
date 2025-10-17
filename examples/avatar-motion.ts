@@ -33,7 +33,8 @@ async function loadEnv(): Promise<void> {
     // Try to use dotenv for Node.js environments
     // This is optional - users can install dotenv or use Bun
     if (typeof require !== 'undefined') {
-      try {\n        require('dotenv').config();
+      try {
+        require('dotenv').config();
       } catch {
         // dotenv not installed, continue with existing env vars
       }
@@ -231,7 +232,8 @@ async function main() {
     if (completedTask.outputs && completedTask.outputs.length > 0) {
       console.log('\n=== Generated Avatar Motion Video ===');
       completedTask.outputs.forEach((output, index) => {
-        console.log(`\nOutput ${index + 1}:`);\n        console.log('  Name:', output.name);
+        console.log(`\nOutput ${index + 1}:`);
+        console.log('  Name:', output.name);
         console.log('  Type:', output.contenttype);
         console.log('  Size:', parseInt(output.size).toLocaleString(), 'bytes');
         console.log('  URL:', output.url);
