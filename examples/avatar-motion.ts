@@ -68,17 +68,23 @@ async function main() {
     inputImage: inputImageUrl,
 
     // Effect type for avatar animation
-    // Default: 3d_figure_smashing
+    // The effect type determines the animation style applied to the avatar.
+    // Check the Wiro AI dashboard or model documentation for all available options.
+    // Example: '3d_figure_smashing' (default)
     effectType: '3d_figure_smashing',
 
     // Output type for the generated video
-    // Default: both
+    // Determines what type of output files are generated (image, video, or both).
+    // Options: 'both' (default) - generates both image and video outputs
+    // Check the Wiro AI dashboard for complete list of options.
     outputType: 'both',
 
     // Seed for reproducibility (same seed = same output for same input)
+    // Can be any string value, typically numeric strings like '42'
     seed: '42',
 
     // Optional: Callback URL to receive a POST request when task completes
+    // When provided, Wiro will send a POST request to this URL with task results
     // callbackUrl: 'https://your-server.com/callback',
   };
 
