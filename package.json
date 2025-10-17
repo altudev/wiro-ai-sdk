@@ -23,6 +23,11 @@
     "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm --sourcemap=external",
     "build:types": "bun run tsc --emitDeclarationOnly --outDir dist",
     "typecheck": "bun run tsc --noEmit",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "test:avatar-motion": "bun test examples/avatar-motion.test.ts",
+    "test:professional-headshot": "bun test examples/professional-headshot.test.ts",
     "prepublishOnly": "bun run build"
   },
   "keywords": [

@@ -1,8 +1,8 @@
 /**
- * Professional Headshot Example
+ * Avatar Motion Example
  *
- * This example demonstrates how to use the Wiro AI SDK to generate professional
- * headshots from an input image using the wiro/professional-headshot model.
+ * This example demonstrates how to use the Wiro AI SDK to generate avatars from photos
+ * and animate them into engaging videos using the wiro/avatarmotion model.
  *
  * Prerequisites:
  * 1. Copy examples/.env.example to .env (or create .env in project root)
@@ -11,11 +11,11 @@
  *
  * To run this example:
  *   # Using Bun (recommended):
- *   bun run examples/professional-headshot.ts
+ *   bun run examples/avatar-motion.ts
  *
  *   # Using Node.js with npm/pnpm/yarn:
  *   npm install dotenv
- *   node --loader tsx examples/professional-headshot.ts
+ *   node --loader tsx examples/avatar-motion.ts
  */
 
 import { WiroClient } from '../src/index';
@@ -38,10 +38,10 @@ if (!apiKey || !apiSecret) {
 }
 
 /**
- * Main example function demonstrating professional headshot generation
+ * Main example function demonstrating avatar motion generation
  */
 async function main() {
-  console.log('=== Wiro AI Professional Headshot Example ===\n');
+  console.log('=== Wiro AI Avatar Motion Example ===\n');
 
   // Step 1: Initialize the WiroClient
   console.log('Step 1: Initializing WiroClient...');
@@ -64,36 +64,36 @@ async function main() {
   }
 
   const params = {
-    // Required: URL of the image to transform into a professional headshot
-    inputImageUrl,
+    // Required: URL of the image to generate avatar from and animate
+    inputImage: inputImageUrl,
 
-    // Background options: white, black, neutral, gray, office
-    background: 'neutral',
+    // Effect type for avatar animation
+    // The effect type determines the animation style applied to the avatar.
+    // Check the Wiro AI dashboard or model documentation for all available options.
+    // Example: '3d_figure_smashing' (default)
+    effectType: '3d_figure_smashing',
 
-    // Optional: Aspect ratio for the output
-    // Options: "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "4:5", "5:4", "21:9", "9:21", "2:1", "1:2"
-    // Leave empty to match input image
-    aspectRatio: '1:1',
+    // Output type for the generated video
+    // Determines what type of output files are generated (image, video, or both).
+    // Options: 'both' (default) - generates both image and video outputs
+    // Check the Wiro AI dashboard for complete list of options.
+    outputType: 'both',
 
     // Seed for reproducibility (same seed = same output for same input)
-    seed: 42,
-
-    // Output format: jpeg or png
-    outputFormat: 'jpeg',
-
-    // Safety tolerance (0-6, where 0 is strictest, 6 is most permissive)
-    safetyTolerance: 2,
+    // Can be any string value, typically numeric strings like '42'
+    seed: '42',
 
     // Optional: Callback URL to receive a POST request when task completes
+    // When provided, Wiro will send a POST request to this URL with task results
     // callbackUrl: 'https://your-server.com/callback',
   };
 
   console.log('Parameters:', JSON.stringify(params, null, 2));
 
-  // Step 3: Run the professional-headshot model
+  // Step 3: Run the avatar-motion model
   console.log('\nStep 3: Submitting task to Wiro AI...');
   try {
-    const runResult = await client.run('wiro', 'professional-headshot', params);
+    const runResult = await client.run('wiro', 'avatarmotion', params);
 
     // Check if the API returned a successful response
     if (!runResult.result) {
@@ -126,15 +126,15 @@ async function main() {
     };
     console.log('\nStep 4: Waiting for task to complete...');
     const completedTask = await waitForTaskCompletion(client, runResult.taskid, pollingConfig);
-    
+
     // Step 5: Display results
     console.log('\n=== Task Completed ===');
     console.log('Task ID:', completedTask.id);
     console.log('Status:', completedTask.status);
     console.log('Elapsed Time:', completedTask.elapsedseconds, 'seconds');
-    
+
     if (completedTask.outputs && completedTask.outputs.length > 0) {
-      console.log('\n=== Generated Headshots ===');
+      console.log('\n=== Generated Avatar Motion Video ===');
       completedTask.outputs.forEach((output, index) => {
         console.log(`\nOutput ${index + 1}:`);
         console.log('  Name:', output.name);
@@ -142,13 +142,13 @@ async function main() {
         console.log('  Size:', parseInt(output.size).toLocaleString(), 'bytes');
         console.log('  URL:', output.url);
       });
-      
-      console.log('\n✓ Success! Your professional headshot is ready.');
-      console.log('Download the image from the URL(s) above.');
+
+      console.log('\n✓ Success! Your avatar motion video is ready.');
+      console.log('Download the video from the URL(s) above.');
     } else {
       console.log('\nWarning: No outputs were generated');
     }
-    
+
     // Debug information (if any)
     if (completedTask.debugoutput) {
       console.log('\nDebug Output:', completedTask.debugoutput);
@@ -156,7 +156,7 @@ async function main() {
     if (completedTask.debugerror) {
       console.log('\nDebug Errors:', completedTask.debugerror);
     }
-    
+
   } catch (error) {
     console.error('\n❌ Error occurred:');
     if (error instanceof Error) {
