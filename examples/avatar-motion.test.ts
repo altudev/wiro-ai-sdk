@@ -5,6 +5,15 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
 import { WiroClient } from '../src/index';
 import type { Task, RunResponse, TaskDetailResponse } from '../src/types/index';
+import {
+  testFixtures,
+  urlTestCases,
+  clientTestCases,
+  taskStatuses,
+  calculateTimeout,
+  isTerminalStatus,
+  isRunningStatus
+} from './shared/test-helpers';
 
 describe('Avatar Motion Example - Utility Functions', () => {
   /**
