@@ -5,7 +5,7 @@
  * and animate them into engaging videos using the wiro/avatarmotion model.
  *
  * Prerequisites:
- * 1. Copy .env.example to .env
+ * 1. Copy examples/.env.example to .env (or create .env in project root)
  * 2. Add your Wiro API credentials to .env
  * 3. Get your API key and secret from https://dashboard.wiro.ai
  *
@@ -32,7 +32,7 @@ const apiSecret = (typeof Bun !== 'undefined' ? Bun.env.WIRO_API_SECRET : null) 
 
 if (!apiKey || !apiSecret) {
   console.error('Error: Missing API credentials');
-  console.error('Please copy .env.example to .env and add your credentials');
+  console.error('Please copy examples/.env.example to .env and add your credentials');
   console.error('Get your API key and secret from https://dashboard.wiro.ai');
   process.exit(1);
 }

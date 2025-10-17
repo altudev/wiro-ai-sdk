@@ -5,7 +5,7 @@
  * headshots from an input image using the wiro/professional-headshot model.
  *
  * Prerequisites:
- * 1. Copy .env.example to .env
+ * 1. Copy examples/.env.example to .env (or create .env in project root)
  * 2. Add your Wiro API credentials to .env
  * 3. Get your API key and secret from https://dashboard.wiro.ai
  *
