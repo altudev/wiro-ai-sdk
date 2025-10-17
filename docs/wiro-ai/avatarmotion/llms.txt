@@ -1,0 +1,358 @@
+Please analyze the following markdown API documentation carefully and store it in memory for reference.
+Once you've processed it, generate code that submits a task and polls the result. Do not guess anything not present in the documentation.
+
+Here is the documentation:
+## Basic tool info
+
+Model name: wiro/AvatarMotion
+Model description: Generate avatars from photos and animate them into engaging videos in one seamless pipeline.
+Model cover: https://cdn.wiro.ai/uploads/models/wiro-AvatarMotion-cover.mp4
+Model categories:
+  - persistent
+  - h100
+  - checkpoint-folder
+  - wan2.2
+  - compare-landscape
+  - fast-interface
+  - image-to-video
+  - tool
+  - nano-banana
+  - videomagic
+
+Model tags:
+  - video
+  - image-to-video
+
+Run Task Endpoint (POST):
+https://api.wiro.ai/v1/Run/wiro/avatarmotion
+
+Get Task Detail Endpoint (POST):
+https://api.wiro.ai/v1/Task/Detail
+
+## Model Inputs: 
+
+  - name: inputImage
+    label: Input Image
+    help: Provide an image file or an image URL.
+    type: combinefileinput
+    default: input-man-3.jpg
+
+  - name: effectType
+    label: Effect Type
+    help: 
+    type: selectwithcover
+    default: 3d_figure_smashing
+
+  - name: outputType
+    label: Output Type
+    help: 
+    type: selectwithcover
+    default: both
+
+  - name: seed
+    label: seed
+    help: seed-help
+    type: text
+    default: 42
+
+
+
+## Integration Header Prepare 
+```bash
+  # Sign up Wiro dashboard and create project
+  export YOUR_API_KEY="{{useSelectedProjectAPIKey}}"; 
+  export YOUR_API_SECRET="XXXXXXXXX"; 
+
+  # unix time or any random integer value
+  export NONCE=$(date +%s);
+
+  # hmac-SHA256 (YOUR_API_SECRET+Nonce) with YOUR_API_KEY
+  export SIGNATURE="$(echo -n "${YOUR_API_SECRET}${NONCE}" | openssl dgst -sha256 -hmac "${YOUR_API_KEY}")";
+```
+
+## Run Command - Make HTTP Post Request 
+```bash
+curl -X POST "https://api.wiro.ai/v1/Run/wiro/avatarmotion" 
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "inputImage": "input-man-3.jpg",
+  "effectType": "3d_figure_smashing",
+  "outputType": "both",
+  "seed": "42",
+  "callbackUrl": "You can provide a callback URL; Wiro will send a POST request to it when the task is completed."
+}';
+```
+
+
+## Run Command - Response
+```json
+{
+    "errors": [],
+    "taskid": "2221",
+    "socketaccesstoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt",
+    "result": true
+}
+```
+
+
+## Get Task Detail - Make HTTP Post Request with Task ID
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Detail"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "2221"
+}';
+```
+
+## Get Task Detail - Make HTTP Post Request with Socket Access Token
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Detail"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "tasktoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt"
+}';
+```
+
+## Get Task Detail - Response
+```json
+{
+  "total": "1",
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "2221",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "socketaccesstoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt",
+          "parameters": {},
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_postprocess_end",
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+          }
+      ],
+  "result": true
+}
+```
+
+
+## Kill Task - Make HTTP Post Request with Task ID
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Kill"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "534574"
+}';
+```
+
+## Kill Task - Make HTTP Post Request with Socket Access Token
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Kill"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE"
+}';
+```
+
+## Kill Task - Response
+```json
+{
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "534574",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "name": "",
+          "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE",
+          "parameters": {
+              "inputImage": "https://api.wiro.ai/v1/File/mCmUXgZLG1FNjjjwmbtPFr2LVJA112/inputImage-6060136.png"
+          },
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_cancel",
+          "cps": "0.000585000000",
+          "totalcost": "0.003510000000",
+          "guestid": null,
+          "projectid": "699",
+          "modelid": "598",
+          "description": "",
+          "basemodelid": "0",
+          "runtype": "model",
+          "modelfolderid": "",
+          "modelfileid": "",
+          "callbackurl": "",
+          "marketplaceid": null,
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "pexit": "0",
+          "categories": "["tool","image-to-image","quick-showcase","compare-landscape"]",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "foldercount": "0",
+                  "filecount": "0",
+                  "ispublic": 0,
+                  "expiretime": null,
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+      }
+  ],
+  "result": true
+}
+```
+
+## Cancel Task - Make HTTP Post Request (For tasks on queue)
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Cancel"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "634574"
+}';
+```
+
+## Cancel Task - Response
+```json
+{
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "634574",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "name": "",
+          "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE",
+          "parameters": {
+              "inputImage": "https://api.wiro.ai/v1/File/mCmUXgZLG1FNjjjwmbtPFr2LVJA112/inputImage-6060136.png"
+          },
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_cancel",
+          "cps": "0.000585000000",
+          "totalcost": "0.003510000000",
+          "guestid": null,
+          "projectid": "699",
+          "modelid": "598",
+          "description": "",
+          "basemodelid": "0",
+          "runtype": "model",
+          "modelfolderid": "",
+          "modelfileid": "",
+          "callbackurl": "",
+          "marketplaceid": null,
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "pexit": "0",
+          "categories": "["tool","image-to-image","quick-showcase","compare-landscape"]",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "foldercount": "0",
+                  "filecount": "0",
+                  "ispublic": 0,
+                  "expiretime": null,
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+      }
+  ],
+  "result": true
+}
+```
+
+
+## Task Status Information
+This section defines the possible task status values returned by the API when polling for task completion.
+
+### Completed Task Statuses (Polling can stop)
+These indicate that the task has reached a terminal state — either success or failure. Once any of these is received, polling should stop.
+- task_postprocess_end : Task completed successfully and post-processing is done.
+- task_cancel : Task was cancelled by the user or system.
+
+### Running Task Statuses (Continue polling)
+These statuses indicate that the task is still in progress. Polling should continue if one of these is returned.
+- task_queue : Task is waiting in the queue.
+- task_accept : Task has been accepted for processing.
+- task_assign : Task is being assigned to a worker.
+- task_preprocess_start : Preprocessing is starting.
+- task_preprocess_end : Preprocessing is complete.
+- task_start : Task execution has started.
+- task_output : Output is being generated.
+          
