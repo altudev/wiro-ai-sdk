@@ -187,6 +187,7 @@ const task = await client.getTaskDetail({
 This repository includes comprehensive examples showing best practices for task polling, error handling, and advanced usage patterns. These are useful if you've cloned the repository and want to see full implementations:
 
 - **[professional-headshot.ts](./examples/professional-headshot.ts)** - Complete example with task polling and error handling
+- **[avatar-motion.ts](./examples/avatar-motion.ts)** - Avatar animation example demonstrating the AvatarMotion model
 
 ### Running Repository Examples (For Development)
 
@@ -205,11 +206,47 @@ If you've cloned this repository:
 5. Run the example:
    ```bash
    bun run examples/professional-headshot.ts
+   # or
+   bun run examples/avatar-motion.ts
    ```
 
 See the [examples README](./examples/README.md) for detailed documentation.
 
 **Note:** If you're using the SDK as an installed npm package in your own project, refer to the "Usage Examples" section above instead.
+
+### Shared Utilities for Examples
+
+The repository includes reusable utilities in `examples/shared/` to help you build your own examples:
+
+```typescript
+import {
+  loadEnv,
+  isValidUrl,
+  waitForTaskCompletion
+} from './examples/shared/helpers';
+
+// Load environment variables (works with both Bun and Node.js)
+await loadEnv();
+
+// Validate URLs before using them
+if (!isValidUrl(imageUrl)) {
+  throw new Error('Invalid URL');
+}
+
+// Poll for task completion with configurable timeout
+const completedTask = await waitForTaskCompletion(client, taskId, {
+  maxAttempts: 60,  // Try up to 60 times
+  intervalMs: 2000  // Wait 2 seconds between attempts
+});
+```
+
+**Available Utilities:**
+- `loadEnv()` - Cross-platform environment variable loading
+- `isValidUrl(url)` - URL validation helper
+- `waitForTaskCompletion(client, taskId, config)` - Task polling with timeout
+- `PollingConfig` - Type-safe polling configuration
+
+These utilities are designed to reduce code duplication across examples and provide consistent behavior. They're fully tested with 95+ unit tests.
 
 ## Features
 
@@ -240,8 +277,18 @@ bun run typecheck
 # Build
 bun run build
 
-# Run tests
+# Run all tests
 bun test
+
+# Run tests with coverage
+bun run test:coverage
+
+# Run specific test suites
+bun run test:professional-headshot
+bun run test:avatar-motion
+
+# Watch mode for tests
+bun run test:watch
 ```
 
 ## Troubleshooting
