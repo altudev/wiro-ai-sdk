@@ -31,6 +31,44 @@ pnpm add wiro-ai-sdk
 bun add wiro-ai-sdk
 ```
 
+## AI-Assisted Development
+
+**Using AI coding assistants?** We've got you covered! This SDK includes a comprehensive [llms.txt](./llms.txt) file designed specifically for AI coding agents like Claude, GitHub Copilot, Cursor, and other LLM-powered development tools.
+
+### How to Use llms.txt with Your AI Assistant
+
+The `llms.txt` file contains detailed integration guides, usage patterns, and best practices that help AI models understand how to implement wiro-ai-sdk in your projects. Here's how to use it:
+
+1. **Share the file with your AI assistant:**
+   - When starting a new project: "Read @llms.txt and help me integrate wiro-ai-sdk"
+   - For specific tasks: "Using @llms.txt as reference, help me generate professional headshots"
+   - For troubleshooting: "Check @llms.txt and help me debug this task polling issue"
+
+2. **What's inside:**
+   - Complete installation and setup instructions
+   - Copy-paste ready code examples for all use cases
+   - Task lifecycle management patterns
+   - Error handling best practices
+   - TypeScript type definitions and interfaces
+   - Troubleshooting guides for common issues
+
+3. **Perfect for "vibe coding":**
+   - Quickly scaffold new integrations with AI assistance
+   - Get instant help with SDK patterns and best practices
+   - Build production-ready code faster with AI-generated implementations
+   - Learn the SDK through interactive development with your AI pair programmer
+
+**Example conversation with your AI assistant:**
+
+```
+You: "Read @llms.txt and create a function that generates professional headshots
+from a URL with proper error handling and task polling"
+
+AI: *Creates a complete, production-ready implementation following SDK best practices*
+```
+
+The llms.txt file is continuously updated to ensure your AI assistant has the latest SDK knowledge and patterns.
+
 ## Quick Start
 
 Get your API credentials from the [Wiro Dashboard](https://dashboard.wiro.ai), then:
