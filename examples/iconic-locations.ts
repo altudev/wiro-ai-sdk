@@ -85,7 +85,7 @@ async function main() {
     aspectRatio: '1:1', // Using square output; change to '' to match input
 
     // Seed for reproducibility (same seed = same output for same input)
-    seed: 42,
+    seed: '42',
 
     // Output format: jpeg or png
     outputFormat: 'jpeg',

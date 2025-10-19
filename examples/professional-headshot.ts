@@ -76,7 +76,7 @@ async function main() {
     aspectRatio: '1:1',
 
     // Seed for reproducibility (same seed = same output for same input)
-    seed: 42,
+    seed: '42',
 
     // Output format: jpeg or png
     outputFormat: 'jpeg',

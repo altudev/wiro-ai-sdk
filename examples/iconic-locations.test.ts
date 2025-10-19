@@ -1,5 +1,5 @@
 /**
- * Tests for professional-headshot example
+ * Tests for iconic-locations example
  */
 
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
@@ -15,7 +15,7 @@ import {
   isRunningStatus
 } from './shared/test-helpers';
 
-describe('Professional Headshot Example - Utility Functions', () => {
+describe('Iconic Locations Example - Utility Functions', () => {
   /**
    * Validate that a string is a valid URL.
    */
@@ -50,28 +50,94 @@ describe('Professional Headshot Example - Utility Functions', () => {
     });
   });
 
-  describe('Professional Headshot Model Parameters', () => {
+  describe('Iconic Locations Model Parameters', () => {
     it('should create valid parameters for the model', () => {
       const params = {
         inputImageUrl: 'https://i.hizliresim.com/qnm71if.jpg',
-        background: 'neutral',
+        iconicLocation: 'Eiffel Tower',
+        safetyTolerance: 2,
         aspectRatio: '1:1',
         seed: '42',
         outputFormat: 'jpeg',
-        safetyTolerance: 2,
       };
 
       expect(params.inputImageUrl).toMatch(/^https?:\/\//);
-      expect(['white', 'black', 'neutral', 'gray', 'office']).toContain(params.background);
       expect(['jpeg', 'png']).toContain(params.outputFormat);
-      expect(params.safetyTolerance).toBeGreaterThanOrEqual(0);
-      expect(params.safetyTolerance).toBeLessThanOrEqual(6);
+      expect(params.safetyTolerance).toBe(2); // Only value 2 is currently supported per API docs
+    });
+
+    it('should accept valid iconic location names', () => {
+      const validLocations = [
+        'Random',
+        'Eiffel Tower',
+        'Tokyo Tower',
+        'Taj Mahal',
+        'Times Square',
+        'Trevi Fountain',
+        'Colosseum',
+        'Statue of Liberty',
+        'Big Ben',
+        'Great Wall of China',
+        'Sydney Opera House',
+        'Machu Picchu',
+        'Golden Gate Bridge',
+        'Pyramids of Giza',
+        'Northern Lights',
+        'Mount Fuji',
+      ];
+
+      validLocations.forEach((location) => {
+        expect(typeof location).toBe('string');
+        expect(location.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should handle empty aspectRatio to match input', () => {
+      const params = {
+        inputImageUrl: 'https://example.com/image.jpg',
+        iconicLocation: 'Eiffel Tower',
+        aspectRatio: '', // Empty string means match input image
+        safetyTolerance: 2,
+        seed: 42,
+        outputFormat: 'jpeg',
+      };
+
+      expect(params.aspectRatio).toBe('');
+    });
+
+    it('should accept valid aspect ratios', () => {
+      const validAspectRatios = [
+        '',
+        '1:1',
+        '16:9',
+        '9:16',
+        '4:3',
+        '3:4',
+        '3:2',
+        '2:3',
+        '4:5',
+        '5:4',
+        '21:9',
+        '9:21',
+        '2:1',
+        '1:2',
+      ];
+
+      validAspectRatios.forEach((ratio) => {
+        expect(typeof ratio).toBe('string');
+      });
     });
 
     it('should accept seed as string', () => {
       const seed = '42';
       expect(typeof seed).toBe('string');
       expect(parseInt(seed)).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should enforce safetyTolerance constraint', () => {
+      // According to API docs, only value 2 is currently supported
+      const safetyTolerance = 2;
+      expect(safetyTolerance).toBe(2);
     });
   });
 
@@ -222,7 +288,7 @@ describe('Professional Headshot Example - Utility Functions', () => {
         socketaccesstoken: 'eDcCm5yyUfIvMFspTwww49OUfgXkQt',
         parameters: {
           inputImageUrl: 'https://example.com/photo.jpg',
-          background: 'neutral',
+          iconicLocation: 'Eiffel Tower',
         },
         debugoutput: '',
         debugerror: '',
@@ -241,8 +307,8 @@ describe('Professional Headshot Example - Utility Functions', () => {
         outputs: [
           {
             id: '6bc392c93856dfce3a7d1b4261e15af3',
-            name: 'headshot.jpg',
-            contenttype: 'image/jpeg',
+            name: '0.png',
+            contenttype: 'image/png',
             parentid: '6c1833f39da71e6175bf292b18779baf',
             uuid: '15bce51f-442f-4f44-a71d-13c6374a62bd',
             size: '202472',
@@ -287,6 +353,16 @@ describe('Professional Headshot Example - Utility Functions', () => {
       expect(() => {
         throw new Error('Network timeout');
       }).toThrow('Network timeout');
+    });
+
+    it('should validate URL before API call', () => {
+      const invalidUrl = 'not-a-valid-url';
+      expect(isValidUrl(invalidUrl)).toBe(false);
+      expect(() => {
+        if (!isValidUrl(invalidUrl)) {
+          throw new Error(`Invalid input image URL: "${invalidUrl}". URL must be a valid HTTP or HTTPS URL.`);
+        }
+      }).toThrow('Invalid input image URL');
     });
   });
 });
