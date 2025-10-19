@@ -1,8 +1,9 @@
 /**
- * Professional Headshot Example
+ * Iconic Locations Example
  *
- * This example demonstrates how to use the Wiro AI SDK to generate professional
- * headshots from an input image using the wiro/professional-headshot model.
+ * This example demonstrates how to use the Wiro AI SDK to place images
+ * seamlessly into iconic landmarks and breathtaking locations around the world
+ * using the wiro/iconic-locations model.
  *
  * Prerequisites:
  * 1. Copy examples/.env.example to .env (or create .env in project root)
@@ -11,11 +12,11 @@
  *
  * To run this example:
  *   # Using Bun (recommended):
- *   bun run examples/professional-headshot.ts
+ *   bun run examples/iconic-locations.ts
  *
  *   # Using Node.js with npm/pnpm/yarn:
  *   npm install dotenv
- *   node --loader tsx examples/professional-headshot.ts
+ *   node --loader tsx examples/iconic-locations.ts
  */
 
 import { WiroClient } from '../src/index';
@@ -38,10 +39,10 @@ if (!apiKey || !apiSecret) {
 }
 
 /**
- * Main example function demonstrating professional headshot generation
+ * Main example function demonstrating iconic locations image generation
  */
 async function main() {
-  console.log('=== Wiro AI Professional Headshot Example ===\n');
+  console.log('=== Wiro AI Iconic Locations Example ===\n');
 
   // Step 1: Initialize the WiroClient
   console.log('Step 1: Initializing WiroClient...');
@@ -64,16 +65,24 @@ async function main() {
   }
 
   const params = {
-    // Required: URL of the image to transform into a professional headshot
+    // Required: URL of the image to place into an iconic location
     inputImageUrl,
 
-    // Background options: white, black, neutral, gray, office
-    background: 'neutral',
+    // Iconic location to place the image into
+    // Options: "Random", "Eiffel Tower", "Tokyo Tower", "Taj Mahal", "Times Square",
+    // "Trevi Fountain", "Colosseum", "Statue of Liberty", "Big Ben", "Great Wall of China",
+    // "Sydney Opera House", "Machu Picchu", "Golden Gate Bridge", and many more
+    // See docs/wiro-ai/iconic-locations/llms.txt for full list of available locations
+    iconicLocation: 'Eiffel Tower',
+
+    // Safety tolerance level for input and output moderation
+    // According to API documentation, only value 2 is currently supported
+    safetyTolerance: 2,
 
     // Optional: Aspect ratio for the output
     // Options: "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "4:5", "5:4", "21:9", "9:21", "2:1", "1:2"
-    // Leave empty to match input image
-    aspectRatio: '1:1',
+    // Set to empty string "" to match input image dimensions
+    aspectRatio: '1:1', // Using square output; change to '' to match input
 
     // Seed for reproducibility (same seed = same output for same input)
     seed: '42',
@@ -81,19 +90,16 @@ async function main() {
     // Output format: jpeg or png
     outputFormat: 'jpeg',
 
-    // Safety tolerance (0-6, where 0 is strictest, 6 is most permissive)
-    safetyTolerance: 2,
-
     // Optional: Callback URL to receive a POST request when task completes
     // callbackUrl: 'https://your-server.com/callback',
   };
 
   console.log('Parameters:', JSON.stringify(params, null, 2));
 
-  // Step 3: Run the professional-headshot model
+  // Step 3: Run the iconic-locations model
   console.log('\nStep 3: Submitting task to Wiro AI...');
   try {
-    const runResult = await client.run('wiro', 'professional-headshot', params);
+    const runResult = await client.run('wiro', 'iconic-locations', params);
 
     // Check if the API returned a successful response
     if (!runResult.result) {
@@ -134,7 +140,7 @@ async function main() {
     console.log('Elapsed Time:', completedTask.elapsedseconds, 'seconds');
     
     if (completedTask.outputs && completedTask.outputs.length > 0) {
-      console.log('\n=== Generated Headshots ===');
+      console.log('\n=== Generated Images with Iconic Locations ===');
       completedTask.outputs.forEach((output, index) => {
         console.log(`\nOutput ${index + 1}:`);
         console.log('  Name:', output.name);
@@ -143,7 +149,7 @@ async function main() {
         console.log('  URL:', output.url);
       });
       
-      console.log('\n✓ Success! Your professional headshot is ready.');
+      console.log('\n✓ Success! Your image has been placed into an iconic location.');
       console.log('Download the image from the URL(s) above.');
     } else {
       console.log('\nWarning: No outputs were generated');

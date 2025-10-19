@@ -91,6 +91,69 @@ Output 1:
 Download the image from the URL(s) above.
 ```
 
+### Iconic Locations (`iconic-locations.ts`)
+
+Demonstrates how to place images seamlessly into iconic landmarks and breathtaking locations around the world using the `wiro/iconic-locations` model.
+
+**What it demonstrates:**
+- Placing images into 65+ iconic locations worldwide
+- Location options including Eiffel Tower, Tokyo Tower, Taj Mahal, Times Square, and many more
+- Aspect ratio control with input dimension matching
+- Reproducible generation with seeds
+- Same robust polling and error handling patterns
+
+**To run:**
+```bash
+bun run examples/iconic-locations.ts
+```
+
+**Key features shown:**
+- **Location Selection**: Choose from 65+ iconic landmarks (or "Random" for surprise)
+- **Flexible Output**: Control aspect ratio or match input image dimensions
+- **Model Parameters**: Safety tolerance, seed, output format (JPEG/PNG)
+- **Task Polling**: Automated polling with configurable timeouts
+- **Error Handling**: URL validation and comprehensive error reporting
+
+**Expected output:**
+```
+=== Wiro AI Iconic Locations Example ===
+
+Step 1: Initializing WiroClient...
+Client initialized successfully
+
+Step 2: Configuring model parameters...
+Parameters: { ... }
+
+Step 3: Submitting task to Wiro AI...
+Task submitted successfully!
+Task ID: 2221
+Socket Access Token: eDcCm5yyUfIvMFspTwww49OUfgXkQt
+
+Step 4: Waiting for task to complete...
+Polling task 2221 for completion...
+[Attempt 1/60] Status: task_queue
+[Attempt 2/60] Status: task_start
+[Attempt 3/60] Status: task_output
+[Attempt 4/60] Status: task_postprocess_end
+Task completed successfully!
+
+=== Task Completed ===
+Task ID: 2221
+Status: task_postprocess_end
+Elapsed Time: 6.0000 seconds
+
+=== Generated Images with Iconic Locations ===
+
+Output 1:
+  Name: 0.png
+  Type: image/png
+  Size: 202,472 bytes
+  URL: https://cdn1.wiro.ai/.../0.png
+
+✓ Success! Your image has been placed into an iconic location.
+Download the image from the URL(s) above.
+```
+
 ## Understanding Task Status Flow
 
 When you submit a task to Wiro AI, it goes through several status stages:
