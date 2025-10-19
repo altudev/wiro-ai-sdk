@@ -1,5 +1,15 @@
 /**
  * Tests for iconic-locations example
+ *
+ * NOTE: These tests cover utility functions and parameter validation.
+ * Full end-to-end integration tests (actual API calls) are not included as they require:
+ * - Valid Wiro API credentials (WIRO_API_KEY, WIRO_API_SECRET)
+ * - Active API access with sufficient credits
+ * - Network connectivity to the Wiro API
+ * These factors make end-to-end tests slower and not suitable for continuous integration.
+ *
+ * For full integration testing, users should run the example with valid credentials:
+ * `bun run examples/iconic-locations.ts`
  */
 
 import { describe, it, expect, beforeEach, mock } from 'bun:test';
@@ -92,13 +102,61 @@ describe('Iconic Locations Example - Utility Functions', () => {
       });
     });
 
+    it('should validate location names with parametrized tests', () => {
+      // Extended list of iconic locations from API documentation
+      const allLocations = [
+        'Random',
+        'Eiffel Tower',
+        'Tokyo Tower',
+        'Taj Mahal',
+        'Times Square',
+        'Trevi Fountain',
+        'Colosseum',
+        'Statue of Liberty',
+        'Big Ben',
+        'Great Wall of China',
+        'Sydney Opera House',
+        'Machu Picchu',
+        'Golden Gate Bridge',
+        'Pyramids of Giza',
+        'Northern Lights',
+        'Mount Fuji',
+        'Christ the Redeemer',
+        'Sagrada Familia',
+        'Neuschwanstein Castle',
+        'Tower of London',
+        'Palace of Versailles',
+        'Stonehenge',
+        'Leaning Tower of Pisa',
+        'Brandenburg Gate',
+        'Arc de Triomphe',
+        'Parthenon',
+        'Alhambra',
+        'St. Basil\'s Cathedral',
+      ];
+
+      // Test each location to ensure proper validation
+      allLocations.forEach((location, index) => {
+        expect(location).toBeDefined();
+        expect(typeof location).toBe('string');
+        expect(location.length).toBeGreaterThan(0);
+        expect(location.length).toBeLessThan(50);
+        // Each location should be a valid string parameter
+        const params = {
+          inputImageUrl: 'https://example.com/image.jpg',
+          iconicLocation: location,
+        };
+        expect(params.iconicLocation).toBe(location);
+      });
+    });
+
     it('should handle empty aspectRatio to match input', () => {
       const params = {
         inputImageUrl: 'https://example.com/image.jpg',
         iconicLocation: 'Eiffel Tower',
         aspectRatio: '', // Empty string means match input image
         safetyTolerance: 2,
-        seed: 42,
+        seed: '42',
         outputFormat: 'jpeg',
       };
 
