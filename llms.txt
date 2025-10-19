@@ -1,0 +1,806 @@
+# Wiro AI SDK - LLM Integration Guide
+
+> **For AI Coding Agents**: This guide helps you understand and implement the wiro-ai-sdk npm package in user projects.
+
+## Overview
+
+**wiro-ai-sdk** is a production-ready TypeScript/JavaScript SDK for the Wiro AI API platform. It provides a type-safe, zero-dependency interface for running AI models (professional headshots, avatar animation, and more) with built-in authentication, file uploads, and task lifecycle management.
+
+**Key Features:**
+- Zero dependencies (uses built-in fetch, crypto, Blob APIs)
+- Full TypeScript support with strict typing
+- HMAC-SHA256 authentication (handled automatically)
+- Automatic file upload handling (local paths, Blobs, Files)
+- Async task management with polling support
+- Works with Bun, Node.js, and modern browsers
+
+**Package Name:** `wiro-ai-sdk`
+**Repository:** https://github.com/altudev/wiro-ai-sdk
+**NPM:** https://www.npmjs.com/package/wiro-ai-sdk
+
+---
+
+## Installation
+
+```bash
+# npm
+npm install wiro-ai-sdk
+
+# yarn
+yarn add wiro-ai-sdk
+
+# pnpm
+pnpm add wiro-ai-sdk
+
+# bun
+bun add wiro-ai-sdk
+```
+
+---
+
+## Quick Start
+
+### 1. Basic Client Initialization
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+const client = new WiroClient({
+  apiKey: 'your_api_key',      // Get from https://dashboard.wiro.ai
+  apiSecret: 'your_api_secret'  // Get from https://dashboard.wiro.ai
+});
+```
+
+**With Environment Variables:**
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+const client = new WiroClient({
+  apiKey: process.env.WIRO_API_KEY!,
+  apiSecret: process.env.WIRO_API_SECRET!
+});
+```
+
+**Custom Base URL (optional):**
+
+```typescript
+const client = new WiroClient({
+  apiKey: process.env.WIRO_API_KEY!,
+  apiSecret: process.env.WIRO_API_SECRET!,
+  baseUrl: 'https://api.wiro.ai/v1'  // Default value
+});
+```
+
+---
+
+## Core Concepts
+
+### Task Lifecycle
+
+Wiro AI uses an **async task-based system**. When you run a model, it returns a task ID. You then poll for task completion.
+
+**Task Status Flow:**
+
+```
+Active Statuses (keep polling):
+  task_queue → task_accept → task_assign →
+  task_preprocess_start → task_preprocess_end →
+  task_start → task_output → task_postprocess_start
+
+Terminal Statuses (stop polling):
+  ✅ task_postprocess_end  (success)
+  ❌ task_cancel           (cancelled/failed)
+```
+
+### Client Methods
+
+```typescript
+// Execute a model with parameters
+await client.run(owner: string, model: string, params: object, files?: WiroFileParam[])
+
+// Get task status and outputs
+await client.getTaskDetail(request: { taskid?: string, tasktoken?: string })
+
+// Kill a running task
+await client.killTask(request: { taskid?: string, tasktoken?: string })
+
+// Cancel a queued task
+await client.cancelTask(taskid: string)
+```
+
+---
+
+## Usage Examples
+
+### Example 1: Professional Headshot Generation (Complete Flow)
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+async function generateHeadshot(imageUrl: string) {
+  // 1. Initialize client
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  // 2. Submit task
+  const runResult = await client.run('wiro', 'professional-headshot', {
+    inputImageUrl: imageUrl,
+    background: 'neutral',         // Options: white, black, neutral, gray, office
+    aspectRatio: '1:1',            // Options: "1:1", "16:9", "9:16", "4:3", etc.
+    seed: 42,                       // For reproducibility
+    outputFormat: 'jpeg',          // Options: jpeg, png
+    safetyTolerance: 2             // 0-6 (0 = strictest, 6 = most permissive)
+  });
+
+  // 3. Check if submission was successful
+  if (!runResult.result || !runResult.taskid) {
+    console.error('API Errors:', runResult.errors);
+    throw new Error('Failed to submit task');
+  }
+
+  console.log('Task ID:', runResult.taskid);
+
+  // 4. Poll for completion
+  let task;
+  let attempts = 0;
+  const maxAttempts = 60;  // ~2 minutes with 2s interval
+
+  do {
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+
+    const detailResponse = await client.getTaskDetail({
+      taskid: runResult.taskid
+    });
+
+    task = detailResponse.tasklist[0];
+    console.log(`[${++attempts}/${maxAttempts}] Status: ${task.status}`);
+
+    // Check timeout
+    if (attempts >= maxAttempts) {
+      throw new Error('Task timeout - did not complete in time');
+    }
+  } while (
+    task.status !== 'task_postprocess_end' &&
+    task.status !== 'task_cancel'
+  );
+
+  // 5. Handle result
+  if (task.status === 'task_cancel') {
+    console.error('Debug Error:', task.debugerror);
+    throw new Error('Task was cancelled');
+  }
+
+  // 6. Access outputs
+  console.log('Success! Outputs:');
+  task.outputs.forEach((output, index) => {
+    console.log(`Output ${index + 1}:`, output.url);
+  });
+
+  return task;
+}
+
+// Usage
+generateHeadshot('https://example.com/photo.jpg')
+  .then(task => console.log('Generated:', task.outputs))
+  .catch(error => console.error('Error:', error));
+```
+
+### Example 2: Avatar Motion Animation
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+async function createAvatarMotion(imageUrl: string) {
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  // Submit avatar motion task
+  const runResult = await client.run('wiro', 'avatarmotion', {
+    inputImage: imageUrl,
+    effectType: '3d_figure_smashing',  // Animation effect type
+    outputType: 'both',                 // Options: 'both', 'image', 'video'
+    seed: '42'
+  });
+
+  if (!runResult.result || !runResult.taskid) {
+    throw new Error('Failed to submit task: ' + runResult.errors.join(', '));
+  }
+
+  // Poll for completion (same pattern as above)
+  let task;
+  do {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const detail = await client.getTaskDetail({ taskid: runResult.taskid });
+    task = detail.tasklist[0];
+    console.log('Status:', task.status);
+  } while (
+    task.status !== 'task_postprocess_end' &&
+    task.status !== 'task_cancel'
+  );
+
+  if (task.status === 'task_postprocess_end') {
+    console.log('Video URL:', task.outputs[0]?.url);
+    return task;
+  } else {
+    throw new Error('Task cancelled: ' + task.debugerror);
+  }
+}
+```
+
+### Example 3: File Uploads (Local Files)
+
+```typescript
+import { WiroClient, WiroFileParam } from 'wiro-ai-sdk';
+
+async function uploadLocalImage(filePath: string) {
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  // Option 1: Using file path (Bun runtime)
+  const files: WiroFileParam[] = [{
+    name: 'inputImage',           // Parameter name expected by model
+    file: './my-photo.jpg'        // Local file path
+  }];
+
+  const result = await client.run('wiro', 'professional-headshot', {
+    background: 'neutral',
+    outputFormat: 'jpeg'
+  }, files);
+
+  // Option 2: Using Blob (Node.js or browser)
+  const imageBuffer = await fetch('https://example.com/image.jpg')
+    .then(r => r.arrayBuffer());
+  const blob = new Blob([imageBuffer], { type: 'image/jpeg' });
+
+  const filesWithBlob: WiroFileParam[] = [{
+    name: 'inputImage',
+    file: blob,
+    filename: 'photo.jpg'  // Optional: specify filename
+  }];
+
+  const result2 = await client.run('wiro', 'professional-headshot', {
+    background: 'neutral'
+  }, filesWithBlob);
+
+  console.log('Task submitted:', result2.taskid);
+  return result2.taskid;
+}
+```
+
+### Example 4: Task Management
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+const client = new WiroClient({
+  apiKey: process.env.WIRO_API_KEY!,
+  apiSecret: process.env.WIRO_API_SECRET!
+});
+
+// Kill a running task
+async function killTask(taskId: string) {
+  const result = await client.killTask({ taskid: taskId });
+  console.log('Task killed:', result.result);
+}
+
+// Cancel a queued task
+async function cancelTask(taskId: string) {
+  const result = await client.cancelTask(taskId);
+  console.log('Task cancelled:', result.result);
+}
+
+// Query task by token (alternative to taskid)
+async function getTaskByToken(token: string) {
+  const result = await client.getTaskDetail({ tasktoken: token });
+  return result.tasklist[0];
+}
+```
+
+---
+
+## Reusable Helper Functions
+
+### Helper: Wait for Task Completion
+
+```typescript
+import { WiroClient, Task, TaskStatus } from 'wiro-ai-sdk';
+
+interface PollingConfig {
+  maxAttempts?: number;   // Default: 60
+  intervalMs?: number;    // Default: 2000
+}
+
+async function waitForTaskCompletion(
+  client: WiroClient,
+  taskid: string,
+  config: PollingConfig = {}
+): Promise<Task> {
+  const maxAttempts = config.maxAttempts ?? 60;
+  const intervalMs = config.intervalMs ?? 2000;
+
+  console.log(`Polling task ${taskid} for completion...`);
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const detail = await client.getTaskDetail({ taskid });
+
+    if (!detail.tasklist || detail.tasklist.length === 0) {
+      throw new Error('Task not found');
+    }
+
+    const task = detail.tasklist[0];
+    const status: TaskStatus = task.status;
+
+    console.log(`[${attempt}/${maxAttempts}] Status: ${status}`);
+
+    // Terminal states
+    if (status === 'task_postprocess_end') {
+      console.log('Task completed successfully!');
+      return task;
+    } else if (status === 'task_cancel') {
+      throw new Error(`Task cancelled: ${task.debugerror}`);
+    }
+
+    // Wait before next poll
+    if (attempt < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
+  }
+
+  throw new Error(`Task timeout after ${(maxAttempts * intervalMs) / 1000}s`);
+}
+
+// Usage
+const task = await waitForTaskCompletion(client, taskId, {
+  maxAttempts: 60,
+  intervalMs: 2000
+});
+```
+
+### Helper: URL Validation
+
+```typescript
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Usage
+if (!isValidUrl(imageUrl)) {
+  throw new Error('Invalid URL provided');
+}
+```
+
+---
+
+## TypeScript Types & Interfaces
+
+### Core Types
+
+```typescript
+import type {
+  WiroClient,
+  WiroClientOptions,
+  WiroFileParam,
+  RunResponse,
+  Task,
+  TaskStatus,
+  TaskOutput,
+  TaskDetailRequest,
+  TaskDetailResponse,
+  KillTaskRequest,
+  KillTaskResponse,
+  CancelTaskRequest,
+  CancelTaskResponse
+} from 'wiro-ai-sdk';
+```
+
+### Key Interfaces
+
+```typescript
+// Client configuration
+interface WiroClientOptions {
+  apiKey: string;
+  apiSecret: string;
+  baseUrl?: string;  // Default: 'https://api.wiro.ai/v1'
+}
+
+// File upload parameter
+interface WiroFileParam {
+  name: string;                   // Parameter name (e.g., 'inputImage')
+  file: string | Blob | File;    // File path, Blob, or File object
+  filename?: string;              // Optional filename override
+}
+
+// Run response (task submission)
+interface RunResponse {
+  errors: any[];
+  taskid?: string;
+  tasktoken?: string;
+  socketaccesstoken?: string;
+  result: boolean;
+}
+
+// Task object
+interface Task {
+  id: string;
+  uuid: string;
+  status: TaskStatus;
+  parameters: Record<string, any>;
+  debugoutput: string;
+  debugerror: string;
+  starttime: string;
+  endtime: string;
+  elapsedseconds: string;
+  outputs: TaskOutput[];
+  // ... more fields
+}
+
+// Task status (union type)
+type TaskStatus =
+  | 'task_queue'
+  | 'task_accept'
+  | 'task_assign'
+  | 'task_preprocess_start'
+  | 'task_preprocess_end'
+  | 'task_start'
+  | 'task_output'
+  | 'task_postprocess_start'
+  | 'task_postprocess_end'  // ✅ Success
+  | 'task_cancel';          // ❌ Cancelled
+
+// Task output (generated files)
+interface TaskOutput {
+  id: string;
+  name: string;
+  contenttype: string;    // e.g., 'image/jpeg', 'video/mp4'
+  size: string;           // Bytes as string
+  url: string;            // Download URL
+  addedtime: string;
+  // ... more fields
+}
+
+// Task detail request
+interface TaskDetailRequest {
+  taskid?: string;
+  tasktoken?: string;
+}
+
+// Task detail response
+interface TaskDetailResponse<T = Task> {
+  total: string;
+  errors: any[];
+  tasklist: T[];
+  result: boolean;
+}
+```
+
+---
+
+## Error Handling Best Practices
+
+### Pattern 1: Comprehensive Error Handling
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+
+async function safeModelRun(imageUrl: string) {
+  try {
+    const client = new WiroClient({
+      apiKey: process.env.WIRO_API_KEY!,
+      apiSecret: process.env.WIRO_API_SECRET!
+    });
+
+    // Validate inputs
+    if (!imageUrl || !isValidUrl(imageUrl)) {
+      throw new Error('Invalid image URL provided');
+    }
+
+    // Submit task
+    const runResult = await client.run('wiro', 'professional-headshot', {
+      inputImageUrl: imageUrl,
+      background: 'neutral'
+    });
+
+    // Check API response
+    if (!runResult.result) {
+      console.error('API returned errors:', runResult.errors);
+      throw new Error('Failed to submit task: ' + runResult.errors.join(', '));
+    }
+
+    if (!runResult.taskid) {
+      throw new Error('No task ID returned from API');
+    }
+
+    // Poll for completion
+    const task = await waitForTaskCompletion(client, runResult.taskid);
+
+    // Verify outputs
+    if (!task.outputs || task.outputs.length === 0) {
+      console.warn('No outputs generated');
+      console.warn('Debug output:', task.debugoutput);
+      console.warn('Debug error:', task.debugerror);
+      throw new Error('No outputs were generated');
+    }
+
+    return task.outputs;
+
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error:', error.message);
+      console.error('Stack:', error.stack);
+    } else {
+      console.error('Unknown error:', error);
+    }
+    throw error;
+  }
+}
+```
+
+### Pattern 2: Retry Logic for Network Errors
+
+```typescript
+async function runWithRetry(
+  client: WiroClient,
+  owner: string,
+  model: string,
+  params: Record<string, any>,
+  maxRetries = 3
+) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await client.run(owner, model, params);
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt} failed:`, error);
+
+      if (attempt < maxRetries) {
+        // Exponential backoff
+        const delay = Math.pow(2, attempt) * 1000;
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError;
+}
+```
+
+---
+
+## Common Patterns for AI Agents
+
+### Pattern 1: Complete Headshot Generation Workflow
+
+```typescript
+async function completeHeadshotWorkflow(imageUrl: string) {
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  // Step 1: Validate input
+  if (!isValidUrl(imageUrl)) {
+    throw new Error('Invalid URL');
+  }
+
+  // Step 2: Submit task
+  const run = await client.run('wiro', 'professional-headshot', {
+    inputImageUrl: imageUrl,
+    background: 'neutral',
+    outputFormat: 'jpeg'
+  });
+
+  if (!run.result || !run.taskid) {
+    throw new Error('Submission failed');
+  }
+
+  // Step 3: Wait for completion
+  const task = await waitForTaskCompletion(client, run.taskid);
+
+  // Step 4: Return outputs
+  return {
+    taskId: task.id,
+    status: task.status,
+    elapsedSeconds: parseFloat(task.elapsedseconds),
+    outputs: task.outputs.map(o => ({
+      url: o.url,
+      type: o.contenttype,
+      size: parseInt(o.size)
+    }))
+  };
+}
+```
+
+### Pattern 2: Batch Processing Multiple Images
+
+```typescript
+async function batchProcessImages(imageUrls: string[]) {
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  // Submit all tasks
+  const taskIds = await Promise.all(
+    imageUrls.map(async (url) => {
+      const run = await client.run('wiro', 'professional-headshot', {
+        inputImageUrl: url,
+        background: 'neutral'
+      });
+      return run.taskid!;
+    })
+  );
+
+  // Wait for all to complete
+  const tasks = await Promise.all(
+    taskIds.map(taskid =>
+      waitForTaskCompletion(client, taskid)
+    )
+  );
+
+  return tasks;
+}
+```
+
+---
+
+## Important Notes for AI Agents
+
+### 1. Authentication
+- **Never hardcode credentials** - always use environment variables
+- Credentials are from https://dashboard.wiro.ai
+- HMAC-SHA256 authentication is automatic (handled by SDK)
+
+### 2. Task Polling
+- **Always poll** - tasks are async and won't complete immediately
+- Typical completion time: 5-30 seconds depending on model
+- Use 2-second intervals to avoid overwhelming the API
+- Set reasonable timeouts (60 attempts = 2 minutes is recommended)
+
+### 3. File Uploads
+- For **Bun runtime**: use file paths directly
+- For **Node.js/browser**: convert to Blob or File object first
+- File parameter `name` must match model's expected parameter
+
+### 4. Error Handling
+- Always check `runResult.result` before proceeding
+- Check for `runResult.taskid` existence
+- Handle both `task_postprocess_end` (success) and `task_cancel` (failure)
+- Read `task.debugerror` for failure details
+
+### 5. Security
+- Don't share sensitive images via public URLs
+- Use temporary/authenticated URLs when possible
+- Be mindful of the `safetyTolerance` parameter
+
+### 6. Model Parameters
+- Each model has different required/optional parameters
+- Check model documentation for specific parameters
+- Common parameters: background, aspectRatio, seed, outputFormat
+
+---
+
+## Available Models
+
+### 1. professional-headshot
+Generates professional headshots from casual photos.
+
+**Parameters:**
+- `inputImageUrl` (string, required): URL of input image
+- `background` (string): white, black, neutral, gray, office
+- `aspectRatio` (string): "1:1", "16:9", "9:16", "4:3", "3:4", etc.
+- `seed` (number): For reproducibility
+- `outputFormat` (string): jpeg, png
+- `outputQuality` (number): 1-100 (default: 95)
+- `safetyTolerance` (number): 0-6 (0 = strictest)
+
+### 2. avatarmotion
+Creates animated avatar videos from static images.
+
+**Parameters:**
+- `inputImage` (string, required): URL of input image
+- `effectType` (string): Animation effect (e.g., '3d_figure_smashing')
+- `outputType` (string): 'both', 'image', 'video'
+- `seed` (string): For reproducibility
+
+---
+
+## Troubleshooting
+
+### Issue: 401 Unauthorized
+**Cause:** Invalid API credentials
+**Solution:** Verify apiKey and apiSecret from dashboard.wiro.ai
+
+### Issue: Task stuck in task_queue
+**Cause:** High API load or invalid parameters
+**Solution:** Check dashboard.wiro.ai for task status, verify parameters
+
+### Issue: Task cancelled (task_cancel)
+**Cause:** Invalid input, safety check failed, or processing error
+**Solution:** Check task.debugerror for details
+
+### Issue: No outputs generated
+**Cause:** Task completed but produced no files
+**Solution:** Check task.debugoutput and task.debugerror
+
+### Issue: File upload fails
+**Cause:** Invalid file path or unsupported format
+**Solution:** Verify file exists, use supported formats (JPEG, PNG)
+
+---
+
+## Complete Working Example (Copy-Paste Ready)
+
+```typescript
+import { WiroClient } from 'wiro-ai-sdk';
+import type { Task, TaskStatus } from 'wiro-ai-sdk';
+
+// Helper function
+async function waitForTask(client: WiroClient, taskid: string): Promise<Task> {
+  for (let i = 0; i < 60; i++) {
+    const detail = await client.getTaskDetail({ taskid });
+    const task = detail.tasklist[0];
+
+    if (task.status === 'task_postprocess_end') return task;
+    if (task.status === 'task_cancel') throw new Error('Task cancelled');
+
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error('Timeout');
+}
+
+// Main function
+async function main() {
+  const client = new WiroClient({
+    apiKey: process.env.WIRO_API_KEY!,
+    apiSecret: process.env.WIRO_API_SECRET!
+  });
+
+  const run = await client.run('wiro', 'professional-headshot', {
+    inputImageUrl: 'https://example.com/photo.jpg',
+    background: 'neutral',
+    outputFormat: 'jpeg'
+  });
+
+  if (!run.result || !run.taskid) {
+    throw new Error('Failed: ' + run.errors.join(', '));
+  }
+
+  console.log('Task ID:', run.taskid);
+  const task = await waitForTask(client, run.taskid);
+
+  console.log('Success! Output:', task.outputs[0].url);
+}
+
+main().catch(console.error);
+```
+
+---
+
+## Additional Resources
+
+- **Dashboard:** https://dashboard.wiro.ai (Get API credentials)
+- **GitHub:** https://github.com/altudev/wiro-ai-sdk
+- **NPM:** https://www.npmjs.com/package/wiro-ai-sdk
+- **Examples:** See repository examples/ directory for complete implementations
+
+---
+
+**Last Updated:** 2025-10-19
+**SDK Version:** 0.1.0+ (Compatible with wiro-ai-sdk v0.1.0 and later)
+**Minimum TypeScript:** 5.0+
+**Supported Runtimes:** Bun, Node.js 18+, Modern Browsers
