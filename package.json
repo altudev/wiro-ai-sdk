@@ -41,7 +41,7 @@
     "ai-models",
     "bun"
   ],
-  "author": "Alper Tunga",
+  "author": "Alper Tunga <alper.tunga@altudev.com> (https://github.com/altudev)",
   "license": "MIT",
   "repository": {
     "type": "git",
