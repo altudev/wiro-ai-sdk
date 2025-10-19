@@ -1,0 +1,26 @@
+# Development sources and configuration
+src/
+examples/
+docs/
+tests/
+
+# Local environment and tooling
+.env
+.env.*
+node_modules/
+bun.lock
+tsconfig.json
+bunfig.toml
+
+# Repository metadata not needed in the package
+AGENTS.md
+CLAUDE.md
+CONTRIBUTING.md
+llms.txt
+.qoder/
+
+# Git and editor files
+.git/
+.gitignore
+.DS_Store
+
