@@ -115,10 +115,12 @@ Tasks progress through these statuses (see `src/types/index.ts:TaskStatus`):
 | `src/types/index.ts` | 193 | All TypeScript interfaces and types (requests, responses, task statuses) |
 | `src/index.ts` | <20 | Public exports for npm package |
 | `examples/professional-headshot.ts` | 194 | Complete usage example with task polling and error handling |
+| `examples/cartoonify.ts` | 183 | Cartoonify model example demonstrating image transformation |
 | `examples/README.md` | 150+ | Examples documentation with setup instructions |
 | `package.json` | 55 | NPM metadata, build scripts, dependencies |
 | `tsconfig.json` | 37 | TypeScript strict mode configuration |
 | `docs/wiro-ai-research/wiro-ai-perplexity-research.md` | 907 | Comprehensive implementation guide and best practices |
+| `docs/wiro-ai/cartoonify/llms.txt` | 428 | Wiro AI Cartoonify model API specs |
 | `docs/wiro-ai/professional-headshot/llms.txt` | 428 | Wiro AI API endpoint specs and curl examples |
 
 ## Build Output

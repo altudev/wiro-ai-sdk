@@ -91,6 +91,76 @@ Output 1:
 Download the image from the URL(s) above.
 ```
 
+### Cartoonify (`cartoonify.ts`)
+
+Demonstrates how to transform photos into fun, vibrant cartoons using the `wiro/cartoonify` model.
+
+**What it demonstrates:**
+- Image transformation and artistic effect application
+- Parameter validation before API submission
+- Safety tolerance configuration for content moderation
+- Aspect ratio control for output dimensions
+- Reproducible results using seeds
+- Same robust polling and error handling patterns
+
+**To run:**
+```bash
+bun run examples/cartoonify.ts
+```
+
+**Key features shown:**
+- **Model Parameters**: Safety tolerance (0-6), aspect ratio, seed, output format
+- **Parameter Validation**: Pre-flight validation using helper functions
+- **Image Transformation**: Converting photos into cartoon style
+- **Output Handling**: Accessing transformed image URLs
+- **Error Handling**: Comprehensive error reporting and debugging
+
+**Expected output:**
+```
+=== Wiro AI Cartoonify Example ===
+
+Step 1: Initializing WiroClient...
+Client initialized successfully
+
+Step 2: Configuring model parameters...
+Parameters: {
+  inputImageUrl: 'https://example.com/image.jpg',
+  safetyTolerance: '2',
+  aspectRatio: '',
+  seed: '42',
+  outputFormat: 'jpeg'
+}
+
+Step 3: Submitting task to Wiro AI...
+Task submitted successfully!
+Task ID: 2221
+Socket Access Token: eDcCm5yyUfIvMFspTwww49OUfgXkQt
+
+Step 4: Waiting for task to complete...
+Polling task 2221 for completion...
+[Attempt 1/60] Status: task_queue
+[Attempt 2/60] Status: task_start
+[Attempt 3/60] Status: task_output
+[Attempt 4/60] Status: task_postprocess_end
+Task completed successfully!
+
+=== Task Completed ===
+Task ID: 2221
+Status: task_postprocess_end
+Elapsed Time: 8.0000 seconds
+
+=== Generated Cartoon Images ===
+
+Output 1:
+  Name: 0.jpeg
+  Type: image/jpeg
+  Size: 156,234 bytes
+  URL: https://cdn1.wiro.ai/.../0.jpeg
+
+✓ Success! Your cartoonified image is ready.
+Download the image from the URL(s) above.
+```
+
 ### Iconic Locations (`iconic-locations.ts`)
 
 Demonstrates how to place images seamlessly into iconic landmarks and breathtaking locations around the world using the `wiro/iconic-locations` model.

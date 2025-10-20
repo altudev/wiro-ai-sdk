@@ -106,7 +106,11 @@ Bun provides built-in functionality for:
 6. ✅ Task lifecycle management and status tracking
 7. ✅ Zero dependencies (uses built-in fetch, crypto, Blob APIs)
 8. ✅ Build system with ESM bundle + TypeScript declarations
-9. ✅ Professional headshot example with task polling
+9. ✅ Multiple example implementations:
+   - Professional headshot example with task polling
+   - Avatar motion example
+   - Iconic locations example
+   - Cartoonify example
 10. ✅ Comprehensive documentation (README, examples, CLAUDE.md)
 
 🔄 **Future Enhancements:**

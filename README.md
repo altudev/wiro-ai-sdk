@@ -224,8 +224,10 @@ const task = await client.getTaskDetail({
 
 This repository includes comprehensive examples showing best practices for task polling, error handling, and advanced usage patterns. These are useful if you've cloned the repository and want to see full implementations:
 
-- **[professional-headshot.ts](./examples/professional-headshot.ts)** - Complete example with task polling and error handling
+- **[professional-headshot.ts](./examples/professional-headshot.ts)** - Generate professional headshots with customizable backgrounds and formatting
+- **[cartoonify.ts](./examples/cartoonify.ts)** - Transform photos into fun, vibrant cartoons with adjustable style parameters
 - **[avatar-motion.ts](./examples/avatar-motion.ts)** - Avatar animation example demonstrating the AvatarMotion model
+- **[iconic-locations.ts](./examples/iconic-locations.ts)** - Place images into 65+ iconic landmarks and locations worldwide
 
 ### Running Repository Examples (For Development)
 
