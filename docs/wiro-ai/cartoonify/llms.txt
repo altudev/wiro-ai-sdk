@@ -1,8 +1,8 @@
 ## Basic tool info
 
-Model name: wiro/filters
-Model description: An image-to-image AI model designed to apply unique filters to your images, giving them a fresh, new look.
-Model cover: https://cdn.wiro.ai/uploads/models/wiro-filters-cover.png
+Model name: wiro/cartoonify
+Model description: Turn your photos into fun, vibrant cartoons! This AI model instantly cartoonifies your images, giving them a unique animated look.
+Model cover: https://cdn.wiro.ai/uploads/models/wiro-cartoonify-cover.png
 Model categories:
   - tool
   - image-to-image
@@ -13,7 +13,7 @@ Model tags:
   - image editing
 
 Run Task Endpoint (POST):
-https://api.wiro.ai/v1/Run/wiro/filters
+https://api.wiro.ai/v1/Run/wiro/cartoonify
 
 Get Task Detail Endpoint (POST):
 https://api.wiro.ai/v1/Task/Detail
@@ -25,30 +25,6 @@ https://api.wiro.ai/v1/Task/Detail
     help: Image to use as reference. Must be jpeg, png
     type: text
     default: 
-
-  - name: filter
-    label: Filter
-    help: 
-    type: select
-    default: 
-    options:
-      - value: "Vivid"
-        label: Vivid
-
-      - value: "Black and White"
-        label: Black and White
-
-      - value: "Sepia"
-        label: Sepia
-
-      - value: "Grayscale"
-        label: Grayscale
-
-      - value: "Warm"
-        label: Warm
-
-      - value: "Cool"
-        label: Cool
 
   - name: safetyTolerance
     label: Safety Tolerance
@@ -142,14 +118,13 @@ https://api.wiro.ai/v1/Task/Detail
 
 ## Run Command - Make HTTP Post Request 
 ```bash
-curl -X POST "https://api.wiro.ai/v1/Run/wiro/filters" 
+curl -X POST "https://api.wiro.ai/v1/Run/wiro/cartoonify" 
 -H "Content-Type: multipart/form-data" 
 -H "x-api-key: ${YOUR_API_KEY}" 
 -H "x-nonce: ${NONCE}" 
 -H "x-signature: ${SIGNATURE}" 
 -d '{
-  "inputImageUrl": "input-woman-1.jpg",
-  "filter": "",
+  "inputImageUrl": "wiro_cartoonify_input_0.jpg",
   "safetyTolerance": "2",
   "aspectRatio": "",
   "seed": "42",
