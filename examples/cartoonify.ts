@@ -15,7 +15,7 @@
  *
  *   # Using Node.js with npm/pnpm/yarn:
  *   npm install dotenv
- *   node --loader tsx examples/cartoonify.ts
+ *   node --import tsx examples/cartoonify.ts
  */
 
 import { WiroClient } from '../src/index';
