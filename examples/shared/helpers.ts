@@ -41,6 +41,21 @@ export async function loadEnv(): Promise<void> {
 }
 
 /**
+ * Extract API credentials from environment variables.
+ * Works with both Bun (Bun.env) and Node.js (process.env).
+ *
+ * @returns Object with apiKey and apiSecret, or undefined if not available
+ */
+export function getApiCredentials(): { apiKey?: string; apiSecret?: string } {
+  const apiKey =
+    (typeof Bun !== 'undefined' ? Bun.env.WIRO_API_KEY : null) || process.env.WIRO_API_KEY;
+  const apiSecret =
+    (typeof Bun !== 'undefined' ? Bun.env.WIRO_API_SECRET : null) || process.env.WIRO_API_SECRET;
+
+  return { apiKey, apiSecret };
+}
+
+/**
  * Validate that a string is a valid URL.
  *
  * @param url - The URL to validate
@@ -120,4 +135,72 @@ export async function waitForTaskCompletion(
   }
 
   throw new Error(`Task did not complete within ${(maxAttempts * intervalMs) / 1000} seconds`);
+}
+
+/**
+ * Validate cartoonify model parameters.
+ *
+ * @param params - The parameters object to validate
+ * @throws Error if any parameter is invalid
+ *
+ * @example
+ * ```ts
+ * validateCartoonifyParams({
+ *   inputImageUrl: 'https://example.com/image.jpg',
+ *   safetyTolerance: '2',
+ *   outputFormat: 'jpeg'
+ * });
+ * ```
+ */
+export function validateCartoonifyParams(params: Record<string, any>): void {
+  // Validate inputImageUrl
+  if (!params.inputImageUrl) {
+    throw new Error('inputImageUrl is required');
+  }
+  if (!isValidUrl(params.inputImageUrl)) {
+    throw new Error(
+      `Invalid inputImageUrl: "${params.inputImageUrl}". URL must be a valid HTTP or HTTPS URL.`
+    );
+  }
+
+  // Validate safetyTolerance (0-6)
+  if (params.safetyTolerance !== undefined) {
+    const tolerance = parseInt(params.safetyTolerance, 10);
+    if (Number.isNaN(tolerance) || tolerance < 0 || tolerance > 6) {
+      throw new Error('safetyTolerance must be an integer between 0 and 6 (inclusive)');
+    }
+  }
+
+  // Validate outputFormat
+  if (params.outputFormat && !['jpeg', 'png'].includes(params.outputFormat)) {
+    throw new Error('outputFormat must be either "jpeg" or "png"');
+  }
+
+  // Validate seed if provided
+  if (params.seed !== undefined && params.seed === '') {
+    throw new Error('seed cannot be an empty string');
+  }
+
+  // Validate aspectRatio if provided
+  const validAspectRatios = [
+    '',
+    '1:1',
+    '16:9',
+    '9:16',
+    '4:3',
+    '3:4',
+    '3:2',
+    '2:3',
+    '4:5',
+    '5:4',
+    '21:9',
+    '9:21',
+    '2:1',
+    '1:2',
+  ];
+  if (params.aspectRatio !== undefined && !validAspectRatios.includes(params.aspectRatio)) {
+    throw new Error(
+      `Invalid aspectRatio: "${params.aspectRatio}". Must be one of: ${validAspectRatios.join(', ')}`
+    );
+  }
 }

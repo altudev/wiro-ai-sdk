@@ -20,15 +20,20 @@
 
 import { WiroClient } from '../src/index';
 import type { Task } from '../src/types/index';
-import { loadEnv, isValidUrl, waitForTaskCompletion, type PollingConfig } from './shared/helpers';
+import {
+  loadEnv,
+  getApiCredentials,
+  isValidUrl,
+  waitForTaskCompletion,
+  validateCartoonifyParams,
+  type PollingConfig,
+} from './shared/helpers';
 
 // Load environment variables
 await loadEnv();
 
 // Get API credentials from environment
-// Works with both Bun (Bun.env) and Node.js (process.env)
-const apiKey = (typeof Bun !== 'undefined' ? Bun.env.WIRO_API_KEY : null) || process.env.WIRO_API_KEY;
-const apiSecret = (typeof Bun !== 'undefined' ? Bun.env.WIRO_API_SECRET : null) || process.env.WIRO_API_SECRET;
+const { apiKey, apiSecret } = getApiCredentials();
 
 if (!apiKey || !apiSecret) {
   console.error('Error: Missing API credentials');
@@ -58,11 +63,6 @@ async function main() {
   // Example input image URL (replace with your own image)
   const inputImageUrl = 'https://i.hizliresim.com/qnm71if.jpg';
 
-  // Validate the input URL
-  if (!isValidUrl(inputImageUrl)) {
-    throw new Error(`Invalid input image URL: "${inputImageUrl}". URL must be a valid HTTP or HTTPS URL.`);
-  }
-
   const params = {
     // Required: URL of the image to transform into a cartoon
     inputImageUrl,
@@ -84,6 +84,16 @@ async function main() {
     // Optional: Callback URL to receive a POST request when task completes
     // callbackUrl: 'https://your-server.com/callback',
   };
+
+  // Validate all parameters before sending to API
+  try {
+    validateCartoonifyParams(params);
+  } catch (validationError) {
+    if (validationError instanceof Error) {
+      throw new Error(`Parameter validation failed: ${validationError.message}`);
+    }
+    throw validationError;
+  }
 
   console.log('Parameters:', JSON.stringify(params, null, 2));
 
