@@ -177,7 +177,7 @@ export function validateCartoonifyParams(params: Record<string, any>): void {
   }
 
   // Validate seed if provided
-  if (params.seed !== undefined && params.seed === '') {
+  if (params.seed === '') {
     throw new Error('seed cannot be an empty string');
   }
 
