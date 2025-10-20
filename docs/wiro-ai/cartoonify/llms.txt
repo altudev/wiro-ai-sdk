@@ -389,7 +389,7 @@ curl -X POST "https://api.wiro.ai/v1/Task/Cancel"
 This section defines the possible task status values returned by the API when polling for task completion.
 
 ### Completed Task Statuses (Polling can stop)
-These indicate that the task has reached a terminal state â€” either success or failure. Once any of these is received, polling should stop.
+These indicate that the task has reached a terminal state — either success or failure. Once any of these is received, polling should stop.
 - task_postprocess_end : Task completed successfully and post-processing is done.
 - task_cancel : Task was cancelled by the user or system.
 
