@@ -1,0 +1,408 @@
+## Basic tool info
+
+Model name: wiro/Virtual Try-On
+Model description: Integrate the Wiro Virtual Try-On API to deliver hyper-realistic apparel fitting directly in your web, mobile, or SaaS platform. Generate lifelike visuals of users wearing new garments with precise texture mapping, pose alignment, and fabric simulation â€” ideal for online retail and fashion tech solutions.
+Model cover: https://cdn.wiro.ai/uploads/models/wiro-virtual-try-on-cover.webp
+Model categories:
+  - tool
+  - image-to-image
+  - compare-landscape
+  - use-agent
+  - quick-showcase
+
+
+Run Task Endpoint (POST):
+https://api.wiro.ai/v1/Run/wiro/virtual-try-on
+
+Get Task Detail Endpoint (POST):
+https://api.wiro.ai/v1/Task/Detail
+
+## Model Inputs: 
+
+  - name: inputImageHuman
+    label: Human Image
+    help: Upload the photo of the person who will model the outfit
+    type: combinefileinput
+    default: wiro-virtual-try-on-input-1-1.jpg
+
+  - name: inputImageClothes
+    label: Garment Images
+    help: Upload images of garments and accessories to try on (max. 2)
+    type: combinefileinput
+    default: wiro-virtual-try-on-input-1-2.jpg,wiro-virtual-try-on-input-1-3.jpg
+
+  - name: style
+    label: Photography Style
+    help: Choose the photography style and environment for the output image.
+    type: select
+    default: virtual-try-on
+    options:
+      - value: "virtual-try-on"
+        label: Virtual Try-On (Keep Original Scene)
+
+      - value: "studio"
+        label: Studio Photography
+
+      - value: "indoor"
+        label: Indoor Lifestyle
+
+      - value: "outdoor"
+        label: Outdoor Location
+
+  - name: pose
+    label: Posture
+    help: Choose the body posture for the model.
+    type: select
+    default: auto
+    options:
+      - value: "auto"
+        label: Auto (Best for Garment)
+
+      - value: "sitting"
+        label: Sitting
+
+      - value: "standing"
+        label: Standing
+
+      - value: "side-profile"
+        label: Side Profile
+
+  - name: plan
+    label: Shot Type
+    help: Choose the framing/composition type. Note: Headshot ignores footwear, Medium Shot ignores lower body items
+    type: select
+    default: auto
+    options:
+      - value: "auto"
+        label: Auto (Best for Garment)
+
+      - value: "headshot"
+        label: Headshot (Shoulders Up)
+
+      - value: "medium-shot"
+        label: Medium Shot (Waist Up)
+
+      - value: "wide-shot"
+        label: Wide Shot (Full Body)
+
+
+
+## Model Parameter Inspires:
+
+  - inputImageHuman: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-1-1.jpg
+  - inputImageClothes: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-1-2.jpg,https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-1-3.jpg
+
+  - inputImageHuman: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-2-1.jpg
+  - inputImageClothes: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-2-2.jpg,https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-2-3.jpg
+
+  - inputImageHuman: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-3-1.jpg
+  - inputImageClothes: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-3-2.jpg
+
+  - inputImageHuman: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-4-1.jpg
+  - inputImageClothes: https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-4-2.jpg,https://cdn.wiro.ai/uploads/sampleinputs/wiro-virtual-try-on-input-4-3.jpg
+
+
+
+## Integration Header Prepare 
+```bash
+  # Sign up Wiro dashboard and create project
+  export YOUR_API_KEY="{{useSelectedProjectAPIKey}}"; 
+  export YOUR_API_SECRET="XXXXXXXXX"; 
+
+  # unix time or any random integer value
+  export NONCE=$(date +%s);
+
+  # hmac-SHA256 (YOUR_API_SECRET+Nonce) with YOUR_API_KEY
+  export SIGNATURE="$(echo -n "${YOUR_API_SECRET}${NONCE}" | openssl dgst -sha256 -hmac "${YOUR_API_KEY}")";
+```
+
+## Run Command - Make HTTP Post Request 
+```bash
+curl -X POST "https://api.wiro.ai/v1/Run/wiro/virtual-try-on" 
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "inputImageHuman": "wiro-virtual-try-on-input-1-1.jpg",
+  "inputImageClothes": [
+    "wiro-virtual-try-on-input-1-2.jpg",
+    "wiro-virtual-try-on-input-1-3.jpg"
+  ],
+  "style": "virtual-try-on",
+  "pose": "auto",
+  "plan": "auto",
+  "callbackUrl": "You can provide a callback URL; Wiro will send a POST request to it when the task is completed."
+}';
+```
+
+
+## Run Command - Response
+```json
+{
+    "errors": [],
+    "taskid": "2221",
+    "socketaccesstoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt",
+    "result": true
+}
+```
+
+
+## Get Task Detail - Make HTTP Post Request with Task ID
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Detail"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "2221"
+}';
+```
+
+## Get Task Detail - Make HTTP Post Request with Socket Access Token
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Detail"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "tasktoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt"
+}';
+```
+
+## Get Task Detail - Response
+```json
+{
+  "total": "1",
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "2221",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "socketaccesstoken": "eDcCm5yyUfIvMFspTwww49OUfgXkQt",
+          "parameters": {},
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_postprocess_end",
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+          }
+      ],
+  "result": true
+}
+```
+
+
+## Kill Task - Make HTTP Post Request with Task ID
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Kill"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "534574"
+}';
+```
+
+## Kill Task - Make HTTP Post Request with Socket Access Token
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Kill"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE"
+}';
+```
+
+## Kill Task - Response
+```json
+{
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "534574",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "name": "",
+          "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE",
+          "parameters": {
+              "inputImage": "https://api.wiro.ai/v1/File/mCmUXgZLG1FNjjjwmbtPFr2LVJA112/inputImage-6060136.png"
+          },
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_cancel",
+          "cps": "0.000585000000",
+          "totalcost": "0.003510000000",
+          "guestid": null,
+          "projectid": "699",
+          "modelid": "598",
+          "description": "",
+          "basemodelid": "0",
+          "runtype": "model",
+          "modelfolderid": "",
+          "modelfileid": "",
+          "callbackurl": "",
+          "marketplaceid": null,
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "pexit": "0",
+          "categories": "["tool","image-to-image","quick-showcase","compare-landscape"]",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "foldercount": "0",
+                  "filecount": "0",
+                  "ispublic": 0,
+                  "expiretime": null,
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+      }
+  ],
+  "result": true
+}
+```
+
+## Cancel Task - Make HTTP Post Request (For tasks on queue)
+```bash
+curl -X POST "https://api.wiro.ai/v1/Task/Cancel"  
+-H "Content-Type: multipart/form-data" 
+-H "x-api-key: ${YOUR_API_KEY}" 
+-H "x-nonce: ${NONCE}" 
+-H "x-signature: ${SIGNATURE}" 
+-d '{
+  "taskid": "634574"
+}';
+```
+
+## Cancel Task - Response
+```json
+{
+  "errors": [],
+  "tasklist": [
+      {
+          "id": "634574",
+          "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+          "name": "",
+          "socketaccesstoken": "ZpYote30on42O4jjHXNiKmrWAZqbRE",
+          "parameters": {
+              "inputImage": "https://api.wiro.ai/v1/File/mCmUXgZLG1FNjjjwmbtPFr2LVJA112/inputImage-6060136.png"
+          },
+          "debugoutput": "",
+          "debugerror": "",
+          "starttime": "1734513809",
+          "endtime": "1734513813",
+          "elapsedseconds": "6.0000",
+          "status": "task_cancel",
+          "cps": "0.000585000000",
+          "totalcost": "0.003510000000",
+          "guestid": null,
+          "projectid": "699",
+          "modelid": "598",
+          "description": "",
+          "basemodelid": "0",
+          "runtype": "model",
+          "modelfolderid": "",
+          "modelfileid": "",
+          "callbackurl": "",
+          "marketplaceid": null,
+          "createtime": "1734513807",
+          "canceltime": "0",
+          "assigntime": "1734513807",
+          "accepttime": "1734513807",
+          "preprocessstarttime": "1734513807",
+          "preprocessendtime": "1734513807",
+          "postprocessstarttime": "1734513813",
+          "postprocessendtime": "1734513814",
+          "pexit": "0",
+          "categories": "["tool","image-to-image","quick-showcase","compare-landscape"]",
+          "outputs": [
+              {
+                  "id": "6bc392c93856dfce3a7d1b4261e15af3",
+                  "name": "0.png",
+                  "contenttype": "image/png",
+                  "parentid": "6c1833f39da71e6175bf292b18779baf",
+                  "uuid": "15bce51f-442f-4f44-a71d-13c6374a62bd",
+                  "size": "202472",
+                  "addedtime": "1734513812",
+                  "modifiedtime": "1734513812",
+                  "accesskey": "dFKlMApaSgMeHKsJyaDeKrefcHahUK",
+                  "foldercount": "0",
+                  "filecount": "0",
+                  "ispublic": 0,
+                  "expiretime": null,
+                  "url": "https://cdn1.wiro.ai/6a6af820-c5050aee-40bd7b83-a2e186c6-7f61f7da-3894e49c-fc0eeb66-9b500fe2/0.png"
+              }
+          ],
+          "size": "202472"
+      }
+  ],
+  "result": true
+}
+```
+
+
+## Task Status Information
+This section defines the possible task status values returned by the API when polling for task completion.
+
+### Completed Task Statuses (Polling can stop)
+These indicate that the task has reached a terminal state â€” either success or failure. Once any of these is received, polling should stop.
+- task_postprocess_end : Task completed successfully and post-processing is done.
+- task_cancel : Task was cancelled by the user or system.
+
+### Running Task Statuses (Continue polling)
+These statuses indicate that the task is still in progress. Polling should continue if one of these is returned.
+- task_queue : Task is waiting in the queue.
+- task_accept : Task has been accepted for processing.
+- task_assign : Task is being assigned to a worker.
+- task_preprocess_start : Preprocessing is starting.
+- task_preprocess_end : Preprocessing is complete.
+- task_start : Task execution has started.
+- task_output : Output is being generated.
+          
