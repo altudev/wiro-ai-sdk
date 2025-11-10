@@ -161,6 +161,160 @@ Output 1:
 Download the image from the URL(s) above.
 ```
 
+### Virtual Try-On (`virtual-try-on.ts`)
+
+Demonstrates how to generate hyper-realistic apparel fitting images using the `wiro/virtual-try-on` model with remote image URLs. This example shows how to upload multiple files and configure photography styles and poses.
+
+**What it demonstrates:**
+- Multi-file upload handling (human model + up to 2 garment images)
+- Photography style configuration (virtual try-on, studio, indoor, outdoor)
+- Pose selection (auto, sitting, standing, side-profile)
+- Shot type/framing control (auto, headshot, medium-shot, wide-shot)
+- Parameter validation for complex multi-input models
+- Extended polling timeout for longer processing times
+
+**To run:**
+```bash
+bun run examples/virtual-try-on.ts
+```
+
+**Key features shown:**
+- **Multi-File Upload**: Handling multiple image inputs with proper file parameter naming
+- **Style Options**: Choose from 4 photography styles for different environments
+- **Pose Control**: Configure model posture for optimal garment presentation
+- **Shot Types**: Control framing from headshots to full-body shots
+- **Extended Polling**: Longer timeouts for complex image processing (30-90 seconds)
+- **Comprehensive Validation**: Parameter validation for all input types
+
+**Expected output:**
+```
+=== Wiro AI Virtual Try-On Example ===
+
+Step 1: Initializing WiroClient...
+Client initialized successfully
+
+Step 2: Configuring model parameters...
+Parameters: {
+  "inputImageHuman": "https://...",
+  "inputImageClothes": ["https://...", "https://..."],
+  "style": "virtual-try-on",
+  "pose": "auto",
+  "plan": "auto"
+}
+
+Step 3: Preparing file uploads...
+Files to upload: 3
+  1. inputImageHuman: https://cdn.wiro.ai/.../human.jpg
+  2. inputImageClothes[0]: https://cdn.wiro.ai/.../garment1.jpg
+  3. inputImageClothes[1]: https://cdn.wiro.ai/.../garment2.jpg
+
+Step 4: Submitting task to Wiro AI...
+Task submitted successfully!
+Task ID: 2221
+Socket Access Token: eDcCm5yyUfIvMFspTwww49OUfgXkQt
+
+Step 5: Waiting for task to complete...
+Note: Virtual try-on processing typically takes 30-90 seconds...
+Polling task 2221 for completion...
+[Attempt 15/90] Status: task_postprocess_end
+Task completed successfully!
+
+=== Task Completed ===
+Task ID: 2221
+Status: task_postprocess_end
+Elapsed Time: 30.0000 seconds
+
+=== Generated Virtual Try-On Images ===
+
+Output 1:
+  Name: 0.png
+  Type: image/png
+  Size: 1,234,567 bytes
+  URL: https://cdn1.wiro.ai/.../0.png
+
+✓ Success! Your virtual try-on images are ready.
+Download the images from the URL(s) above.
+
+💡 Tips for best results:
+  - Use high-quality, well-lit photos
+  - Ensure clothing images are on plain backgrounds
+  - Try different styles and poses for various effects
+  - Use "auto" settings for best garment presentation
+```
+
+### Virtual Try-On with Local Files (`virtual-try-on-local-files.ts`)
+
+Demonstrates how to use local file uploads for virtual try-on generation, perfect for processing images stored on your local filesystem without first uploading them to URLs.
+
+**What it demonstrates:**
+- Local file path validation and accessibility checking
+- File system operations with both Bun and Node.js compatibility
+- Local file upload handling in the SDK
+- Error handling for missing or inaccessible files
+- File preparation guidance and setup instructions
+
+**To run:**
+```bash
+# First, create a directory for your sample images
+mkdir -p examples/sample-images
+
+# Place your images in that directory:
+# - human-model.jpg (your model photo)
+# - garment-1.jpg, garment-2.jpg (clothing items)
+
+# Then run the example
+bun run examples/virtual-try-on-local-files.ts
+```
+
+**Key features shown:**
+- **Local File Handling**: Direct file path uploads without URL conversion
+- **File Validation**: Pre-flight checks for file existence and accessibility
+- **Cross-Platform Compatibility**: Works with both Bun and Node.js file APIs
+- **Setup Guidance**: Clear instructions for preparing local files
+- **Error Recovery**: Helpful error messages when files are missing
+
+**Expected output:**
+```
+=== Wiro AI Virtual Try-On with Local Files Example ===
+
+Step 1: Initializing WiroClient...
+Client initialized successfully
+
+Step 2: Configuring local files...
+Local files to be uploaded:
+  Human model: ./examples/sample-images/human-model.jpg
+  Garments: ./examples/sample-images/garment-1.jpg, ./examples/sample-images/garment-2.jpg
+✓ All local files found and accessible
+
+Step 3: Configuring model parameters...
+Parameters: {
+  "style": "studio",
+  "pose": "standing",
+  "plan": "medium-shot"
+}
+
+Step 4: Preparing file uploads...
+Files to upload: 3
+  1. inputImageHuman: ./examples/sample-images/human-model.jpg
+  2. inputImageClothes[0]: ./examples/sample-images/garment-1.jpg
+  3. inputImageClothes[1]: ./examples/sample-images/garment-2.jpg
+
+Step 5: Submitting task to Wiro AI...
+Task submitted successfully!
+Task ID: 2221
+
+Step 6: Waiting for task to complete...
+Note: Virtual try-on processing typically takes 30-90 seconds...
+
+=== Task Completed ===
+✓ Success! Your virtual try-on images are ready.
+Download the images from the URL(s) above.
+
+💡 You can download these images using:
+  curl -o result-1.png https://cdn1.wiro.ai/.../0.png
+  # or in your browser, right-click and "Save Image As..."
+```
+
 ### Iconic Locations (`iconic-locations.ts`)
 
 Demonstrates how to place images seamlessly into iconic landmarks and breathtaking locations around the world using the `wiro/iconic-locations` model.
@@ -285,12 +439,25 @@ async function waitForTask(client: WiroClient, taskid: string) {
 ### 3. Using File Uploads
 
 ```typescript
-// Upload a local file
+// Upload a single local file
 const result = await client.run('wiro', 'model-name', {
   prompt: 'Generate an image',
 }, [
   { name: 'inputImage', file: './path/to/image.jpg' }
 ]);
+
+// Upload multiple files (like Virtual Try-On)
+const files = [
+  { name: 'inputImageHuman', file: './human.jpg' },
+  { name: 'inputImageClothes[0]', file: './shirt.jpg' },
+  { name: 'inputImageClothes[1]', file: './pants.jpg' }
+];
+
+const result = await client.run('wiro', 'virtual-try-on', {
+  style: 'studio',
+  pose: 'standing',
+  plan: 'auto'
+}, files);
 ```
 
 ### 4. Error Handling
